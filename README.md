@@ -35,4 +35,7 @@ For some reason libz.so and libcrypto.so do not work with python. This is not an
 
 Vim acts strange sometimes. The main thing i've noticed is that you can only backspace things that you have enterd int he current INSERT session. If you exit vim, or exit then reenter INSERT mode, you cannot backspace anything, you must :d the entire line and start again. Is this something with the .vimrc? I have this same one on two other boxes with no problems. If you find a fix, let me know.
 
+Libcurl does not work with git (i haven't tried with hg). So you cannot use http or https with those.
 
+### Things To Look Out For
+ssh (and scp) are really wonky. known_hosts is in /home/chronos/user/.ssh/known_hosts, but any ssh keys need to be in /home/chronos/.ssh.
