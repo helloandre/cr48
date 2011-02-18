@@ -4,5 +4,5 @@ cp -R bin /home/chronos/user/bin
 cp -R vim /home/chronos/user/.vim
 cp vimrc /home/chronos/user/.vimrc
 cp bashrc /home/chronos/user/.bashrc
-source .bashrc
+source /home/chronos/user/.bashrc
 
