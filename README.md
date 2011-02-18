@@ -33,8 +33,6 @@ The install script will move everything into the correct place. It may or may no
 ### Known Bugs
 For some reason libz.so and libcrypto.so do not work with python. This is not an issue as I have not run into any problems (including cloning/pushing with hg/git). If you find a fix for this, please fork this and pull request.
 
-Vim acts strange sometimes. The main thing i've noticed is that you can only backspace things that you have enterd int he current INSERT session. If you exit vim, or exit then reenter INSERT mode, you cannot backspace anything, you must :d the entire line and start again. Is this something with the .vimrc? I have this same one on two other boxes with no problems. If you find a fix, let me know.
-
 Libcurl does not work with git (i haven't tried with hg). So you cannot use http or https with those.
 
 ### Things To Look Out For
