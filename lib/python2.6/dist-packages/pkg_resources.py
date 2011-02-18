@@ -1,0 +1,1 @@
+../../../share/pyshared/pkg_resources.py

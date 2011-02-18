@@ -1,0 +1,1 @@
+/usr/share/pyshared/telepathy/_generated/Connection_Interface_Presence.py

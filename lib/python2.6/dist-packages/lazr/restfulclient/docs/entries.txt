@@ -1,0 +1,632 @@
+******************
+Entry manipulation
+******************
+
+Objects available through the web interface, such as cookbooks, have a
+readable interface which is available through direct attribute access.
+
+    >>> from lazr.restfulclient.tests.example import CookbookWebServiceClient
+    >>> service = CookbookWebServiceClient()
+
+    >>> recipe = service.recipes[1]
+    >>> print recipe.instructions
+    You can always judge...
+
+These objects may have a number of attributes, as well as associated
+entries and collections.
+
+    >>> cookbook = recipe.cookbook
+    >>> print cookbook.name
+    Mastering the Art of French Cooking
+
+    >>> len(cookbook.recipes)
+    2
+
+The lp_* introspection methods let you know what you can do with an
+object. You can also use dir(), but it'll be cluttered with all sorts
+of other stuff.
+
+    >>> sorted(dir(cookbook))
+    [..., 'confirmed', 'copyright_date', 'cover', ... 'find_recipes',
+     ..., 'recipes', ...]
+    >>> sorted(cookbook.lp_attributes)
+    ['confirmed', 'copyright_date', ..., 'self_link']
+
+    >>> sorted(cookbook.lp_entries)
+    ['cover']
+    >>> sorted(cookbook.lp_collections)
+    ['recipes']
+    >>> sorted(cookbook.lp_operations)
+    ['find_recipe_for', 'find_recipes', 'make_more_interesting',
+     'replace_cover']
+
+Some attributes can only take on certain values. The lp_values_for
+method will show you these values.
+
+    >>> sorted(cookbook.lp_values_for('cuisine'))
+    ['American', 'Dessert', u'Fran\xe7aise', 'General', 'Vegetarian']
+
+Some attributes don't have a predefined list of acceptable values. For
+them, lp_values_for() returns None.
+
+    >>> print cookbook.lp_values_for('copyright_date')
+    None
+
+Some of these attributes can be changed.  For example, a client can
+change a recipe's preparation instructions. When changing attribute values
+though, the changes are not pushed to the web service until the entry
+is explicitly saved.  This allows the client to batch the changes over
+the wire for efficiency.
+
+    >>> recipe.instructions = 'Modified instructions'
+    >>> print service.recipes[1].instructions
+    You can always judge...
+
+Once the changes are saved though, they are propagated to the web
+service.
+
+    >>> recipe.lp_save()
+    >>> print service.recipes[1].instructions
+    Modified instructions
+
+An entry object is a normal Python object like any other. Attributes
+of an entry, like 'cuisine' or 'cookbook', are available as attributes
+on the resource, and may be set. Random strings that are not
+attributes of the entry cannot be set or read as Python attributes.
+
+    >>> recipe.instructions = 'Different instructions'
+    >>> recipe.is_great = True
+    Traceback (most recent call last):
+    ...
+    AttributeError: 'Entry' object has no attribute 'is_great'
+
+    >>> recipe.is_great
+    Traceback (most recent call last):
+    ...
+    AttributeError: 'Entry' object has no attribute 'is_great'
+
+The client can set more than one attribute on an entry at a time:
+they'll all be changed when the entry is saved.
+
+    >>> cookbook.cuisine
+    u'Fran\xe7aise'
+    >>> cookbook.description
+    u''
+
+    >>> cookbook.cuisine = 'Dessert'
+    >>> cookbook.description = "A new description"
+    >>> cookbook.lp_save()
+
+    >>> cookbook = service.recipes[1].cookbook
+
+    >>> print cookbook.cuisine
+    Dessert
+    >>> print cookbook.description
+    A new description
+
+Some of an entry's attributes may take other resources as values.
+
+    >>> old_cookbook = recipe.cookbook
+    >>> other_cookbook = service.cookbooks['Everyday Greens']
+    >>> print other_cookbook.name
+    Everyday Greens
+    >>> recipe.cookbook = other_cookbook
+    >>> recipe.lp_save()
+    >>> print recipe.cookbook.name
+    Everyday Greens
+
+    >>> recipe.cookbook = old_cookbook
+    >>> recipe.lp_save()
+
+
+Refreshing data
+---------------
+
+Here are two objects representing recipe #1. A representation of an
+entry object is not fetched until the data is needed. We'll fetch a
+representation for the first object right away...
+
+    >>> recipe_copy = service.recipes[1]
+    >>> print recipe_copy.instructions
+    Different instructions
+
+...but leave the second object alone.
+
+    >>> recipe_copy_2 = service.recipes[1]
+
+An entry is automatically refreshed after saving.
+
+    >>> recipe.instructions = 'Even newer instructions'
+    >>> recipe.lp_save()
+    >>> print recipe.instructions
+    Even newer instructions
+
+If an old object representing that entry already has a representation,
+it will still show the old data.
+
+    >>> print recipe_copy.instructions
+    Different instructions
+
+If an old object representing that entry doesn't have a representation
+yet, it will show the new data.
+
+    >>> print recipe_copy_2.instructions
+    Even newer instructions
+
+You can also refresh a resource object manually.
+
+    >>> recipe_copy.lp_refresh()
+    >>> print recipe_copy.instructions
+    Even newer instructions
+
+Bookmarking an entry
+--------------------
+
+You can get an entry's URL from the 'self_link' attribute, save the
+URL for a while, and retrieve the entry later using the load()
+function.
+
+    >>> bookmark = recipe.self_link
+    >>> new_recipe = service.load(bookmark)
+    >>> print new_recipe.dish.name
+    Roast chicken
+
+You can bookmark a URI relative to the version of the web service
+currently in use.
+
+    >>> cookbooks = service.load("cookbooks")
+    >>> print cookbooks['The Joy of Cooking'].self_link
+    http://cookbooks.dev/1.0/cookbooks/The%20Joy%20of%20Cooking
+
+    >>> cookbook = service.load("/cookbooks/The%20Joy%20of%20Cooking")
+    >>> print cookbook.self_link
+    http://cookbooks.dev/1.0/cookbooks/The%20Joy%20of%20Cooking
+
+    >>> service_root = service.load("")
+    >>> print service_root.cookbooks['The Joy of Cooking'].name
+    The Joy of Cooking
+
+But you can't provide the web service version and bookmark a URI
+relative to the service root.
+
+    >>> cookbooks = service.load("/1.0/cookbooks")
+    Traceback (most recent call last):
+    ...
+    HTTPError: HTTP Error 404: Not Found
+    ...
+
+(That code attempts to load http://cookbooks.dev/1.0/1.0/cookbooks,
+which doesn't exist.)
+
+You can't bookmark an absolute or relative URI that has nothing to do
+with the web service.
+
+    >>> bookmark = 'http://cookbooks.dev/'
+    >>> service.load(bookmark)
+    Traceback (most recent call last):
+    ...
+    HTTPError: HTTP Error 404: Not Found
+    ...
+
+    >>> service.load("/no-such-url")
+    Traceback (most recent call last):
+    ...
+    HTTPError: HTTP Error 404: Not Found
+    ...
+
+You can't bookmark the return value of a named operation. This is not
+really desirable, but that's how things work right now.
+
+    >>> url_without_type = ('http://cookbooks.dev/1.0/cookbooks' +
+    ...                     '?ws.op=find_recipes&search=a')
+    >>> service.load(url_without_type)
+    Traceback (most recent call last):
+    ...
+    ValueError: Couldn't determine the resource type of...
+
+Moving an entry
+---------------
+
+Some entries will move to different URLs when a client changes their
+data attributes. For instance, a cookbook's URL is determined by its
+name.
+
+    >>> cookbook = service.cookbooks['The Joy of Cooking']
+    >>> print cookbook.name
+    The Joy of Cooking
+    >>> old_link = cookbook.self_link
+    >>> print old_link
+    http://cookbooks.dev/1.0/cookbooks/The%20Joy%20of%20Cooking
+    >>> cookbook.name = "Another Name"
+    >>> cookbook.lp_save()
+
+Change the name, and you change the URL.
+
+    >>> new_link = cookbook.self_link
+    >>> print new_link
+    http://cookbooks.dev/1.0/cookbooks/Another%20Name
+
+Old bookmarks won't work anymore.
+
+    >>> print service.load(old_link)
+    Traceback (most recent call last):
+    ...
+    HTTPError: HTTP Error 404: Not Found
+    ...
+
+    >>> print service.load(new_link).name
+    Another Name
+
+Under the covers though, a refresh of the original object has been
+retrieved from the web service, so it's safe to continue using, and
+changing it.
+
+    >>> cookbook.description = u'This cookbook was renamed'
+    >>> cookbook.lp_save()
+    >>> print service.load(new_link).description
+    This cookbook was renamed
+
+It's just as easy to move this cookbook back to the old name.
+
+    >>> cookbook.name = 'The Joy of Cooking'
+    >>> cookbook.lp_save()
+
+Now the old bookmark works again, and the new bookmark no longer works.
+
+    >>> print service.load(old_link).name
+    The Joy of Cooking
+
+    >>> print service.load(new_link)
+    Traceback (most recent call last):
+    ...
+    HTTPError: HTTP Error 404: Not Found
+    ...
+
+Validation
+----------
+
+Some attributes are subject to validation. For instance, a cookbook's
+cuisine is limited to one of a few selections.
+
+    >>> from lazr.restfulclient.errors import HTTPError
+    >>> def print_error_on_save(entry):
+    ...     try:
+    ...         entry.lp_save()
+    ...     except HTTPError, error:
+    ...         for line in sorted(error.content.splitlines()):
+    ...             print line.decode("utf-8")
+    ...     else:
+    ...         print 'Did not get expected HTTPError!'
+
+    >>> cookbook.cuisine = 'No such cuisine'
+    >>> print_error_on_save(cookbook)
+    cuisine: Invalid value "No such cuisine". Acceptable values are: ...
+    >>> cookbook.cuisine = 'General'
+
+Some attributes can't be modified at all.
+
+    >>> cookbook.copyright_date = None
+    >>> print_error_on_save(cookbook)
+    copyright_date: You tried to modify a read-only attribute.
+
+If the client tries to save an entry that has more than one problem,
+it will get back an error message listing all the problems.
+
+    >>> cookbook.cuisine = 'No such cuisine'
+    >>> print_error_on_save(cookbook)
+    copyright_date: You tried to modify a read-only attribute.
+    cuisine: Invalid value "No such cuisine". Acceptable values are: ...
+
+
+Server-side data massage
+------------------------
+
+Send bad data and your request will be rejected. But if you send data
+that's not quite what the server is expecting, the server may accept
+it while tweaking it. This means that the state of your object after
+you call lp_save() may be slightly different from the object before
+you called lp_save().
+
+    >>> cookbook.lp_refresh()
+    >>> cookbook.description = "   Some extraneous whitespace  "
+    >>> cookbook.lp_save()
+    >>> cookbook.description
+    u'Some extraneous whitespace'
+
+Data types
+----------
+
+Incoming data is serialized from JSON, and all the JSON data types
+appear to the end-user as native Python data types. But there's no
+standard serialization for JSON dates, so those are handled
+separately. From the perspective of the end-user, date and date-time
+fields always look like Python datetime objects or None.
+
+    >>> cookbook.copyright_date
+    datetime.datetime(1995, 1, 1,...)
+
+    >>> from datetime import datetime
+    >>> cookbook.last_printing = datetime(2009, 1, 1)
+    >>> cookbook.lp_save()
+
+
+Avoiding conflicts
+==================
+
+lazr.restful and lazr.restfulclient work together to try to avoid
+situations where one person unknowingly overwrites another's
+work. Here, two different clients are interested in the same
+lazr.restful object.
+
+    >>> first_client = CookbookWebServiceClient()
+    >>> first_cookbook = first_client.load(cookbook.self_link)
+    >>> first_description = first_cookbook.description
+
+    >>> second_client = CookbookWebServiceClient()
+    >>> second_cookbook = second_client.load(cookbook.self_link)
+    >>> second_cookbook.description == first_description
+    True
+
+The first client decides to change the description.
+
+    >>> first_cookbook.description = 'A description.'
+    >>> first_cookbook.lp_save()
+
+The second client tries to make a conflicting change, but the server
+detects that the second client doesn't have the latest information,
+and rejects the request.
+
+    >>> second_cookbook.description = 'A conflicting description.'
+    >>> second_cookbook.lp_save()
+    Traceback (most recent call last):
+    ...
+    HTTPError: HTTP Error 412: Precondition Failed
+    ...
+
+Now the second client has a chance to look at the changes that were
+made, before making their own changes.
+
+    >>> second_cookbook.lp_refresh()
+    >>> print second_cookbook.description
+    A description.
+
+    >>> second_cookbook.description = 'A conflicting description.'
+    >>> second_cookbook.lp_save()
+
+Conflict detection works even when you operate on an object you
+retrieved from a collection.
+
+    >>> first_cookbook = first_client.cookbooks[:10][0]
+    >>> second_cookbook = second_client.cookbooks[:10][0]
+    >>> first_cookbook.name == second_cookbook.name
+    True
+
+    >>> first_cookbook.description = "A description"
+    >>> first_cookbook.lp_save()
+
+    >>> second_cookbook.description = "A conflicting description"
+    >>> second_cookbook.lp_save()
+    Traceback (most recent call last):
+    ...
+    HTTPError: HTTP Error 412: Precondition Failed
+    ...
+
+    >>> second_cookbook.lp_refresh()
+    >>> print second_cookbook.description
+    A description
+
+    >>> second_cookbook.description = "A conflicting description"
+    >>> second_cookbook.lp_save()
+
+    >>> first_cookbook.lp_refresh()
+    >>> print first_cookbook.description
+    A conflicting description
+
+
+Comparing entries
+-----------------
+
+Two entries are equal if they represent the same state of the same
+server-side resource.
+
+    >>> from lazr.restfulclient.tests.example import CookbookWebServiceClient
+    >>> service = CookbookWebServiceClient()
+
+What does this mean? Well, two distinct objects that represent the
+same resource are equal.
+
+    >>> recipe = service.recipes[1]
+    >>> recipe_2 = service.load(recipe.self_link)
+    >>> recipe is recipe_2
+    False
+
+    >>> recipe == recipe_2
+    True
+    >>> recipe != recipe_2
+    False
+
+Two totally different entries are not equal.
+
+    >>> another_recipe = service.recipes[2]
+    >>> recipe == another_recipe
+    False
+
+An entry can be compared to None, but the comparison never succeeds.
+
+    >>> recipe == None
+    False
+
+If one entry represents the current state of the server, and the other
+is out of date or has client-side modifications, they will not be
+considered equal.
+
+Here, 'recipe' has been modified and 'recipe_2' represents the current
+state of the server.
+
+    >>> recipe.instructions = "Modified for equality testing."
+    >>> recipe == recipe_2
+    False
+
+After a save, 'recipe' is up to date, and 'recipe_2' is out of date.
+
+    >>> recipe.lp_save()
+    >>> recipe == recipe_2
+    False
+
+Refreshing 'recipe_2' brings it up to date, and equality succeeds again.
+
+    >>> recipe_2.lp_refresh()
+    >>> recipe == recipe_2
+    True
+
+If you make the _exact same_ client-side modifications to two objects
+representing the same resource, the objects will be considered equal.
+
+    >>> recipe.instructions = "Modified again."
+    >>> recipe_2.instructions = recipe.instructions
+    >>> recipe == recipe_2
+    True
+
+If you then save one of the objects, they will stop being equal,
+because the saved object has a new ETag.
+
+    >>> recipe.lp_save()
+    >>> recipe == recipe_2
+    False
+
+Server-side permissions
+-----------------------
+
+The server may hide some data from you because you lack the permission
+to see it. To avoid objects that are mysteriously missing fields, the
+server will serve a special "redacted" value that lets you know you
+don't have permission to see the data.
+
+    >>> from lazr.restfulclient.tests.example import CookbookWebServiceClient
+    >>> service = CookbookWebServiceClient()
+
+    >>> cookbook = service.recipes[1].cookbook
+    >>> print cookbook.confirmed
+    tag:launchpad.net:2008:redacted
+
+If you try to make an HTTP request for the "redacted" value (usually
+by following a link that you don't know is redacted), you'll get a
+helpful error.
+
+    >>> service.load("tag:launchpad.net:2008:redacted")
+    Traceback (most recent call last):
+    ...
+    ValueError: You tried to access a resource that you don't have the
+    server-side permission to see.
+
+Deleting an entry
+=================
+
+Some entries can be deleted with the lp_delete method.
+
+    >>> recipe = service.recipes[6]
+    >>> print recipe.lp_delete()
+    None
+
+A deleted entry no longer exists.
+
+    >>> recipe.lp_refresh()
+    Traceback (most recent call last):
+    ...
+    HTTPError: HTTP Error 404: Not Found
+    ...
+
+Some entries can't be deleted.
+
+    >>> cookbook.lp_delete()
+    Traceback (most recent call last):
+    ...
+    HTTPError: HTTP Error 405: Method Not Allowed
+    ...
+
+When are representations fetched?
+=================================
+
+To avoid unnecessary HTTP requests, a representation of an entry is
+fetched at the last possible moment. Let's see what that means.
+
+    >>> import httplib2
+    >>> httplib2.debuglevel = 1
+
+    >>> service = CookbookWebServiceClient()
+    send: ...
+    ...
+
+Here's an entry we got from a lookup operation on a top-level
+collection. Just doing the lookup operation doesn't trigger an HTTP
+request, because CookbookWebServiceClient happens to know that the
+'recipes' collection contains recipe objects.
+
+    >>> recipe1 = service.recipes[1]
+
+Here's the dish associated with that original entry. Traversing from
+one entry to another causes an HTTP request for the first
+entry. Without this HTTP request, there's no way to know the URL of
+the second entry.
+
+    >>> dish = recipe1.dish
+    send: 'GET /1.0/recipes/1 ...'
+    ...
+
+Note that this request is a request for the _recipe_, not the dish. We
+don't need to know anything about the dish yet. And now that we have a
+representation of the recipe, we can traverse from the recipe to its
+cookbook without making another request.
+
+    >>> cookbook = recipe1.cookbook
+
+Accessing any information about an entry we've traversed to _will_
+cause an HTTP request.
+
+    >>> print dish.name
+    send: 'GET /1.0/dishes/Roast%20chicken ...'
+    ...
+    Roast chicken
+
+Invoking a named operation also causes one (and only one) HTTP
+request.
+
+    >>> recipes = cookbook.find_recipes(search="foo")
+    send: 'get /1.0/cookbooks/...ws.op=find_recipes...'
+    ...
+
+Even dereferencing an entry from another entry and then invoking a
+named operation causes only one HTTP request.
+
+    >>> recipes = recipe1.cookbook.find_recipes(search="bar")
+    send: 'get /1.0/cookbooks/...ws.op=find_recipes...'
+    ...
+
+In all cases we are able to delay HTTP requests until the moment we
+need data that can only be found by making those HTTP requests. If it
+turns out we never need that data, we've eliminated a request
+entirely.
+
+If CookbookWebServiceClient didn't know that the 'recipes' collection
+contained recipe objects, then doing a lookup on that collection *would*
+trigger an HTTP request. There'd simply be no other way to know what
+kind of object was at the other end of the URL.
+
+    >>> from lazr.restfulclient.tests.example import RecipeSet
+    >>> old_collection_of = RecipeSet.collection_of
+    >>> RecipeSet.collection_of = None
+
+    >>> recipe1 = service.recipes[1]
+    send: 'GET /1.0/recipes/1 ...'
+    ...
+
+On the plus side, at least accessing this object's properties doesn't
+require _another_ HTTP request.
+
+    >>> print recipe1.instructions
+    Modified again.
+
+Cleanup.
+
+    >>> RecipeSet.collection_of = old_collection_of
+    >>> httplib2.debuglevel = 0

@@ -1,0 +1,1 @@
+/usr/share/pyshared/desktopcouch/tasks/__init__.py

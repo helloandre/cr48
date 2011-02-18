@@ -1,0 +1,1 @@
+../../../../../share/pyshared/twisted/test/generator_failure_tests.py

@@ -1,0 +1,1 @@
+../../../../share/pyshared/apport/__init__.py

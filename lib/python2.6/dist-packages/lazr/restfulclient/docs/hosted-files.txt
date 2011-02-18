@@ -1,0 +1,183 @@
+************
+Hosted files
+************
+
+Some resources published by lazr.restful are externally hosted files
+that can have binary representations. lazr.restfulclient gives you
+access to these resources.
+
+    >>> from lazr.restfulclient.tests.example import CookbookWebServiceClient
+    >>> service = CookbookWebServiceClient()
+
+An example of a hosted binary file is the cover of a
+cookbook. "Everyday Greens" starts off with no cover.
+
+    >>> greens = service.cookbooks['Everyday Greens']
+    >>> cover = greens.cover
+    >>> sorted(dir(cover))
+    [..., 'open']
+
+    >>> cover.open()
+    Traceback (most recent call last):
+    ...
+    HTTPError: HTTP Error 404: Not Found
+    ...
+
+You can open a hosted file for write access and write to it as though
+it were a file on disk.
+
+    >>> image = "Pretend this is an image."
+    >>> len(image)
+    25
+
+    >>> file_handle = cover.open("w", "image/png", "a-cover.png")
+    >>> file_handle.content_type
+    'image/png'
+    >>> file_handle.filename
+    'a-cover.png'
+    >>> print file_handle.last_modified
+    None
+    >>> file_handle.write(image)
+    >>> file_handle.close()
+
+Once it exists on the server, you can open a hosted file for read
+access and read it.
+
+    >>> file_handle = cover.open()
+    >>> file_handle.content_type
+    'image/png'
+    >>> file_handle.filename
+    '0'
+    >>> last_modified = file_handle.last_modified
+    >>> last_modified is None
+    False
+    >>> len(file_handle.read())
+    25
+
+Note that the filename is '0', not 'a-cover.png'. The filename from
+the server is implementation-dependent and may not have anything to do
+with the filename the client sent. If the server implementation uses
+lazr.librarian, it will serve files with the originally uploaded
+filename, but the example web service uses its own, simpler
+implementation which serves the file's ID as the filename.
+
+Modifying a file will change its 'last_modified' attribute.
+
+    >>> file_handle = cover.open("w", "image/png", "another-cover.png")
+    >>> file_handle.write(image)
+    >>> file_handle.close()
+
+    >>> file_handle = cover.open()
+    >>> file_handle.filename
+    '1'
+    >>> last_modified_2 = file_handle.last_modified
+    >>> last_modified == last_modified_2
+    False
+
+Once a file exists, it can be deleted.
+
+    >>> cover.delete()
+    >>> cover.open()
+    Traceback (most recent call last):
+    ...
+    HTTPError: HTTP Error 404: Not Found
+    ...
+
+Comparing hosted files
+----------------------
+
+Two hosted file objects are the same if they point to the same
+server-side resource.
+
+    >>> cover = service.cookbooks['Everyday Greens'].cover
+    >>> cover_2 = service.cookbooks['Everyday Greens'].cover
+    >>> cover == cover_2
+    True
+
+    >>> other_cover = service.cookbooks['The Joy of Cooking'].cover
+    >>> cover == other_cover
+    False
+
+A hosted file can be compared to None, but the comparison never succeeds.
+
+    >>> cover == None
+    False
+
+Error handling
+--------------
+
+The only access modes supported are 'r' and 'w'.
+
+    >>> cover.open("r+")
+    Traceback (most recent call last):
+    ...
+    ValueError: Invalid mode. Supported modes are: r, w
+
+When opening a file for write access, you must specify the
+content_type argument.
+
+    >>> cover.open("w")
+    Traceback (most recent call last):
+    ...
+    ValueError: Files opened for write access must specify content_type.
+
+    >>> cover.open("w", "image/png")
+    Traceback (most recent call last):
+    ...
+    ValueError: Files opened for write access must specify filename.
+
+When opening a file for read access, you must *not* specify the
+content_type or filename arguments--they come from the server.
+
+    >>> cover.open("r", "image/png")
+    Traceback (most recent call last):
+    ...
+    ValueError: Files opened for read access can't specify content_type.
+
+    >>> cover.open("r", filename="foo.png")
+    Traceback (most recent call last):
+    ...
+    ValueError: Files opened for read access can't specify filename.
+
+
+Caching
+-------
+
+Hosted file resources implement the normal server-side caching
+mechanism.
+
+    >>> file_handle = cover.open("w", "image/png", "image.png")
+    >>> file_handle.write(image)
+    >>> file_handle.close()
+
+    >>> import httplib2
+    >>> httplib2.debuglevel = 1
+    >>> service = CookbookWebServiceClient()
+    send: ...
+    >>> cover = service.cookbooks['Everyday Greens'].cover
+    send: ...
+
+The first request for a file retrieves the file from the server.
+
+    >>> len(cover.open().read())
+    send: ...
+    reply: '...303 See Other...
+    reply: '...200 Ok...
+    25
+
+The second request retrieves the file from the cache.
+
+    >>> len(cover.open().read())
+    send: ...
+    reply: '...303 See Other...
+    reply: '...304 Not Modified...
+    25
+
+
+Finally, some cleanup code that deletes the cover.
+
+    >>> cover.delete()
+    send: 'DELETE...
+    reply: '...200...
+
+    >>> httplib2.debuglevel = 0

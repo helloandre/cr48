@@ -1,0 +1,1 @@
+../../../../share/pyshared/DistUpgrade/theme-switch-helper.py

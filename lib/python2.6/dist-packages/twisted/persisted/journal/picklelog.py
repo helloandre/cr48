@@ -1,0 +1,1 @@
+../../../../../../share/pyshared/twisted/persisted/journal/picklelog.py

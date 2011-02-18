@@ -1,0 +1,1 @@
+/usr/share/pyshared/desktopcouch/contacts/testing/__init__.py

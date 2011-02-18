@@ -1,0 +1,1 @@
+/usr/share/pyshared/telepathy/client/connmgr.py

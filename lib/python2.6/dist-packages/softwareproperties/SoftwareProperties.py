@@ -1,0 +1,1 @@
+../../../../share/pyshared/softwareproperties/SoftwareProperties.py

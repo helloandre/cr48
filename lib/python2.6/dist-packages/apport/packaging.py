@@ -1,0 +1,1 @@
+../../../../share/pyshared/apport/packaging.py

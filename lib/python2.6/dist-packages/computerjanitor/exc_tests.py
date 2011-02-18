@@ -1,0 +1,1 @@
+../../../../share/pyshared/computerjanitor/exc_tests.py

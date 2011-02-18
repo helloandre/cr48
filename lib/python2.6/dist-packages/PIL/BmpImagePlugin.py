@@ -1,0 +1,1 @@
+../../../../share/pyshared/PIL/BmpImagePlugin.py

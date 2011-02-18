@@ -1,0 +1,1 @@
+../../../../share/pyshared/UpdateManager/MetaReleaseGObject.py

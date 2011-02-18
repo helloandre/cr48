@@ -1,0 +1,1 @@
+../../../../share/pyshared/LanguageSelector/FontConfig.py

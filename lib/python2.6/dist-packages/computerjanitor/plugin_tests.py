@@ -1,0 +1,1 @@
+../../../../share/pyshared/computerjanitor/plugin_tests.py

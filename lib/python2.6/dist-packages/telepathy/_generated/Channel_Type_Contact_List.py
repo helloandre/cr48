@@ -1,0 +1,1 @@
+/usr/share/pyshared/telepathy/_generated/Channel_Type_Contact_List.py

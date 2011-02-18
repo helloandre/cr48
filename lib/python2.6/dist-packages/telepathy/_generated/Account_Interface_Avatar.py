@@ -1,0 +1,1 @@
+/usr/share/pyshared/telepathy/_generated/Account_Interface_Avatar.py

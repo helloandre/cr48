@@ -1,0 +1,1 @@
+../../../../../share/pyshared/twisted/python/shortcut.py

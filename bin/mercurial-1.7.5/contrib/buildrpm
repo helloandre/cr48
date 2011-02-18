@@ -1,0 +1,110 @@
+#!/bin/sh
+#
+# Build a Mercurial RPM in place.
+#
+# Tested on
+# - Fedora 8 (with docutils 0.5)
+# - Fedora 11
+# - OpenSuse 11.2
+
+cd "`dirname $0`/.."
+HG="$PWD/hg"
+PYTHONPATH="$PWD/mercurial/pure"
+export PYTHONPATH
+
+specfile=contrib/mercurial.spec
+if [ ! -f $specfile ]; then
+    echo "Cannot find $specfile!" 1>&2
+    exit 1
+fi
+
+if [ ! -d .hg ]; then
+    echo 'You are not inside a Mercurial repository!' 1>&2
+    exit 1
+fi
+
+if $HG id -i | grep '+$' > /dev/null 2>&1; then
+    echo -n "Your local changes will NOT be in the RPM. Continue [y/n] ? "
+    read answer
+    if echo $answer | grep -iv '^y'; then
+        exit
+    fi
+fi
+
+rpmdir="$PWD/rpmbuild"
+
+rm -rf $rpmdir
+mkdir -p $rpmdir/SOURCES $rpmdir/SPECS $rpmdir/RPMS $rpmdir/SRPMS $rpmdir/BUILD
+
+# make setup.py build the version string
+python setup.py build_py -c -d .
+hgversion=`$HG version | sed -ne 's/.*(version \(.*\))$/\1/p'`
+
+if echo $hgversion | grep -- '-' > /dev/null 2>&1; then
+    # nightly build case, version is like 1.3.1+250-20b91f91f9ca
+    version=`echo $hgversion | cut -d- -f1`
+    release=`echo $hgversion | cut -d- -f2 | sed -e 's/+.*//'`
+else
+    # official tag, version is like 1.3.1
+    version=`echo $hgversion | sed -e 's/+.*//'`
+    release='0'
+fi
+
+$HG archive -t tgz $rpmdir/SOURCES/mercurial-$version.tar.gz
+rpmspec=$rpmdir/SPECS/mercurial-$version.spec
+
+sed -e "s,^Version:.*,Version: $version," \
+    -e "s,^Release:.*,Release: $release," \
+    $specfile > $rpmspec
+
+echo >> $rpmspec
+echo "%changelog" >> $rpmspec
+
+if echo $version | grep '+' > /dev/null 2>&1; then
+    latesttag="`echo $version | sed -e 's/+.*//'`"
+    $HG log -r .:"$latesttag" -fM \
+        --template '{date|hgdate}\t{author}\t{desc|firstline}\n' | python -c '
+import sys, time
+
+def datestr(date, format):
+    return time.strftime(format, time.gmtime(float(date[0]) - date[1]))
+
+changelog = []
+for l in sys.stdin.readlines():
+    tok = l.split("\t")
+    hgdate = tuple(int(v) for v in tok[0].split())
+    changelog.append((datestr(hgdate, "%F"), tok[1], hgdate, tok[2]))
+prevtitle = ""
+for l in sorted(changelog, reverse=True):
+    title = "* %s %s" % (datestr(l[2], "%a %b %d %Y"), l[1])
+    if prevtitle != title:
+        prevtitle = title
+        print
+        print title
+    print "- %s" % l[3].strip()
+' >> $rpmspec
+
+else
+
+    $HG log \
+         --template '{date|hgdate}\t{author}\t{desc|firstline}\n' \
+         .hgtags | python -c '
+import sys, time
+
+def datestr(date, format):
+    return time.strftime(format, time.gmtime(float(date[0]) - date[1]))
+
+for l in sys.stdin.readlines():
+    tok = l.split("\t")
+    hgdate = tuple(int(v) for v in tok[0].split())
+    print "* %s %s\n- %s" % (datestr(hgdate, "%a %b %d %Y"), tok[1], tok[2])
+' >> $rpmspec
+
+fi
+
+rpmbuild --define "_topdir $rpmdir" -ba $rpmspec --clean
+if [ $? = 0 ]; then
+    echo
+    echo "Packages are in $rpmdir:"
+    ls -l $rpmdir/*RPMS/*
+fi

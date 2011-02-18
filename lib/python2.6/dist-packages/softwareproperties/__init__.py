@@ -1,0 +1,1 @@
+../../../../share/pyshared/softwareproperties/__init__.py

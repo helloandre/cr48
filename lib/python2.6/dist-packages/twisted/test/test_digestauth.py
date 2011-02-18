@@ -1,0 +1,1 @@
+../../../../../share/pyshared/twisted/test/test_digestauth.py

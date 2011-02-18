@@ -1,0 +1,7 @@
+#!/bin/bash
+cp -R lib /home/chronos/user/lib
+cp -R bin /home/chronos/user/bin
+cp vimrc /home/chronos/user/.vimrc
+cp bashrc /home/chronos/user/.bashrc
+source .bashrc
+

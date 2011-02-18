@@ -1,0 +1,1 @@
+/usr/share/pyshared/mx/DateTime/mxDateTime/testsubclassing.py

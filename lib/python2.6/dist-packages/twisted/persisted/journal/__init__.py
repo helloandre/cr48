@@ -1,0 +1,1 @@
+../../../../../../share/pyshared/twisted/persisted/journal/__init__.py

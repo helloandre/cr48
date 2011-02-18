@@ -1,0 +1,1 @@
+/usr/share/pyshared/zope/interface/tests/__init__.py

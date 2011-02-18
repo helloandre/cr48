@@ -1,0 +1,1 @@
+../../../../share/pyshared/UpdateManager/__init__.py

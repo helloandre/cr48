@@ -1,0 +1,1 @@
+/usr/share/pyshared/zope/interface/tests/dummy.py

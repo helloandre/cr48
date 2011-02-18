@@ -1,0 +1,1 @@
+/usr/share/pyshared/desktopcouch/contacts/record.py

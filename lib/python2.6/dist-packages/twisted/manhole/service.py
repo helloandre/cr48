@@ -1,0 +1,1 @@
+../../../../../share/pyshared/twisted/manhole/service.py

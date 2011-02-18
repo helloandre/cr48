@@ -1,0 +1,1 @@
+/usr/share/pyshared/desktopcouch/replication_services/__init__.py

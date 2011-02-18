@@ -1,0 +1,1 @@
+/usr/share/pyshared/zope/interface/tests/ifoo.py

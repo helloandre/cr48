@@ -1,0 +1,1 @@
+../../../../share/pyshared/PIL/Hdf5StubImagePlugin.py

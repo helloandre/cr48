@@ -1,0 +1,1 @@
+../../../../share/pyshared/DistUpgrade/DistUpgradeViewGtk.py

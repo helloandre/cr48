@@ -1,0 +1,1 @@
+../../../../share/pyshared/PIL/Image.py

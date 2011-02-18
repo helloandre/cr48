@@ -1,0 +1,1 @@
+/usr/share/pyshared/desktopcouch/bookmarks/record.py

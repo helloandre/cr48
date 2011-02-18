@@ -1,0 +1,1 @@
+/usr/share/pyshared/butterfly/connection_manager.py

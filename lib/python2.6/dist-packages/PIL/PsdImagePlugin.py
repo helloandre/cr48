@@ -1,0 +1,1 @@
+../../../../share/pyshared/PIL/PsdImagePlugin.py

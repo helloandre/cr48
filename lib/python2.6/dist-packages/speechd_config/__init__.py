@@ -1,0 +1,1 @@
+/usr/share/pyshared/speechd_config/__init__.py

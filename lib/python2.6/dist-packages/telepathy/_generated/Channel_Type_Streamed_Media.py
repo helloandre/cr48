@@ -1,0 +1,1 @@
+/usr/share/pyshared/telepathy/_generated/Channel_Type_Streamed_Media.py

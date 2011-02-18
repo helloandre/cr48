@@ -1,0 +1,4 @@
+test_module = None
+test_suite = lazr.restfulclient.tests
+test_loader = None
+tests_require = 

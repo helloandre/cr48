@@ -1,0 +1,1 @@
+../../../../../share/pyshared/gst-0.10/gst/__init__.py

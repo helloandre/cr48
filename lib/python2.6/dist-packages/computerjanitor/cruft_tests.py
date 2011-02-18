@@ -1,0 +1,1 @@
+../../../../share/pyshared/computerjanitor/cruft_tests.py

@@ -1,0 +1,1 @@
+../../../../../../share/pyshared/twisted/trial/test/test_script.py

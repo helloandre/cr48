@@ -1,0 +1,1 @@
+../../../../share/pyshared/DistUpgrade/DistUpgradeViewKDE.py

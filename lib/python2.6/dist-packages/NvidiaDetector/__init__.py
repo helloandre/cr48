@@ -1,0 +1,1 @@
+../../../../share/pyshared/NvidiaDetector/__init__.py

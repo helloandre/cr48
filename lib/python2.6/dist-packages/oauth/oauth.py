@@ -1,0 +1,1 @@
+/usr/share/pyshared/oauth/oauth.py

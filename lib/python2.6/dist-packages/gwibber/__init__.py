@@ -1,0 +1,1 @@
+/usr/share/pyshared/gwibber/__init__.py

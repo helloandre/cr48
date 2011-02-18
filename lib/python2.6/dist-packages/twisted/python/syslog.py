@@ -1,0 +1,1 @@
+../../../../../share/pyshared/twisted/python/syslog.py

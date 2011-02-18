@@ -1,0 +1,1 @@
+/usr/share/pyshared/checkbox/lib/__init__.py

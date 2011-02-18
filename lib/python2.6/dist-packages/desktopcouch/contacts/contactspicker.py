@@ -1,0 +1,1 @@
+/usr/share/pyshared/desktopcouch/contacts/contactspicker.py

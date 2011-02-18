@@ -1,0 +1,1 @@
+/usr/share/pyshared/GnomeCodecInstall/MainWindow.py

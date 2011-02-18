@@ -1,0 +1,1 @@
+../../../../share/pyshared/PIL/FitsStubImagePlugin.py

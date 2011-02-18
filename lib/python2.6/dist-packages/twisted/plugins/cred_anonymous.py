@@ -1,0 +1,1 @@
+../../../../../share/pyshared/twisted/plugins/cred_anonymous.py

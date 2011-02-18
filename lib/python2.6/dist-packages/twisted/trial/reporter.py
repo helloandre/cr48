@@ -1,0 +1,1 @@
+../../../../../share/pyshared/twisted/trial/reporter.py

@@ -1,0 +1,1 @@
+/usr/share/pyshared/telepathy/__init__.py

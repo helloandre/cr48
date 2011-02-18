@@ -1,0 +1,11 @@
+*.xml
+*.html
+*.[1-8]
+*.made
+*.texi
+git.info
+gitman.info
+howto-index.txt
+doc.dep
+cmds-*.txt
+manpage-base-url.xsl

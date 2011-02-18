@@ -1,0 +1,1 @@
+../../../../../share/pyshared/softwareproperties/gtk/DialogEdit.py

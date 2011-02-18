@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+  <?include guids.wxi ?>
+  <?include defines.wxi ?>
+
+  <Fragment>
+    <DirectoryRef Id="INSTALLDIR">
+      <Directory Id="helpdir" Name="help" FileSource="$(var.SourceDir)">
+        <Component Id="helpFolder" Guid="$(var.helpFolder.guid)" Win64='$(var.IsX64)'>
+          <File Name="config.txt" KeyPath="yes" />
+          <File Name="dates.txt" />
+          <File Name="diffs.txt" />
+          <File Name="environment.txt" />
+          <File Name="extensions.txt" />
+          <File Name="glossary.txt" />
+          <File Name="hgweb.txt" />
+          <File Name="merge-tools.txt" />
+          <File Name="multirevs.txt" />
+          <File Name="patterns.txt" />
+          <File Name="revisions.txt" />
+          <File Name="revsets.txt" />
+          <File Name="subrepos.txt" />
+          <File Name="templates.txt" />
+          <File Name="urls.txt" />
+        </Component>
+      </Directory>
+    </DirectoryRef>
+  </Fragment>
+
+</Wix>

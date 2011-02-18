@@ -1,0 +1,1 @@
+/usr/share/pyshared/speechd/_test.py

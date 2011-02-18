@@ -1,0 +1,1 @@
+/usr/share/pyshared/gwibber/lib/gtk/qaiku.py

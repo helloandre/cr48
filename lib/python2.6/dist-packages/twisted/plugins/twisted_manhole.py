@@ -1,0 +1,1 @@
+../../../../../share/pyshared/twisted/plugins/twisted_manhole.py

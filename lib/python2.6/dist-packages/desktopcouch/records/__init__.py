@@ -1,0 +1,1 @@
+/usr/share/pyshared/desktopcouch/records/__init__.py

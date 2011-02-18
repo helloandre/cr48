@@ -1,0 +1,1 @@
+/usr/share/pyshared/telepathy/interfaces.py

@@ -1,0 +1,1 @@
+/usr/share/pyshared/desktopcouch/start_local_couchdb.py

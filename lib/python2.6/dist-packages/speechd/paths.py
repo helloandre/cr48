@@ -1,0 +1,1 @@
+/usr/share/pyshared/speechd/paths.py

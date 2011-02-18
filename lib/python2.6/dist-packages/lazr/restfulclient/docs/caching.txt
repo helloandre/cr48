@@ -1,0 +1,276 @@
+*******
+Caching
+*******
+
+lazr.restfulclient automatically caches the responses to its requests
+in a temporary directory.
+
+    >>> import httplib2
+    >>> httplib2.debuglevel = 1
+
+    >>> from lazr.restfulclient.tests.example import CookbookWebServiceClient
+    >>> service_with_cache = CookbookWebServiceClient()
+    send: 'GET /1.0/ ...
+    reply: ...200...
+    ...
+    header: Content-Type: application/vnd.sun.wadl+xml
+    send: 'GET /1.0/ ...
+    reply: ...200...
+    ...
+    header: Content-Type: application/json
+
+    >>> print service_with_cache.recipes[4].instructions
+    send: 'GET /1.0/recipes/4 ...
+    reply: ...200...
+    ...
+    Preheat oven to...
+
+The second and subsequent times you request some object, it's likely
+that lazr.restfulclient will make a conditional HTTP GET request instead of
+a normal request. The HTTP response code will be 304 instead of 200,
+and lazr.restfulclient will use the cached representation of the object.
+
+    >>> print service_with_cache.recipes[4].instructions
+    send: 'GET /1.0/recipes/4 ...
+    reply: ...304...
+    ...
+    Preheat oven to...
+
+This is true even if you initially got the object as part of a
+collection.
+
+    >>> recipes = service_with_cache.recipes[:10]
+    send: ...
+    reply: ...200...
+
+    >>> first_recipe = recipes[0]
+    >>> first_recipe.lp_refresh()
+    send: ...
+    reply: ...304...
+
+Note that if you get an object as part of a collection and then get it
+some other way, a conditional GET request will *not* be made. This is
+a shortcoming of the library.
+
+    >>> service_with_cache.recipes[first_recipe.id]
+    send: ...
+    reply: ...200...
+
+The default lazr.restfulclient cache directory is a temporary directory
+that's deleted when the Python process ends. (If the process is
+killed, the directory will stick around in /tmp.) It's much more
+efficient to keep a cache directory across multiple uses of
+lazr.restfulclient.
+
+You can provide a cache directory name as argument when creating a
+Service object. This directory will fill up with cached HTTP
+responses, and since it's a directory you control it will persist
+across lazr.restfulclient sessions.
+
+    >>> import tempfile
+    >>> tempdir = tempfile.mkdtemp()
+
+    >>> first_service = CookbookWebServiceClient(cache=tempdir)
+    send: 'GET /1.0/ ...
+    reply: ...200...
+    ...
+    send: 'GET /1.0/ ...
+    reply: ...200...
+    ...
+
+    >>> print first_service.recipes[4].instructions
+    send: 'GET /1.0/recipes/4 ...
+    reply: ...200...
+    ...
+    Preheat oven to...
+
+This will save you a *lot* of time in subsequent sessions, because
+you'll be able to use cached versions of the initial (very expensive)
+documents. A new client will not re-request the service root at all.
+
+    >>> second_service = CookbookWebServiceClient(cache=unicode(tempdir))
+
+You'll also be able to make conditional requests for many resources
+and avoid transferring their full representations.
+
+    >>> print second_service.recipes[4].instructions
+    send: 'GET /1.0/recipes/4 ...
+    reply: ...304...
+    ...
+    Preheat oven to...
+
+Of course, if you ever need to clear the cache directory, you'll have
+to do it yourself.
+
+Cleanup.
+
+    >>> import shutil
+    >>> shutil.rmtree(tempdir)
+
+Cache expiration
+----------------
+
+The '1.0' version of the example web service, which we've been using up til
+now, sets a long cache expiry time for the service root. That's why we
+were able to create a second client that didn't request the service
+root at all--just fetched the representations from its cache.
+
+The 'devel' version of the example web service sets a cache expiry
+time of two seconds. Let's see what that looks like on the client side.
+
+    >>> tempdir = tempfile.mkdtemp()
+    >>> first_service = CookbookWebServiceClient(
+    ...     cache=tempdir, version='devel')
+    send: 'GET /devel/ ...
+    reply: ...200...
+    ...
+    send: 'GET /devel/ ...
+    reply: ...200...
+    ...
+
+Now let's wait for three seconds to make sure the representations become
+stale.
+
+    >>> from time import sleep
+    >>> sleep(3)
+
+When the representations are stale, a new client makes *conditional*
+requests for the representations. If the conditions fail (as they do
+here), the cached representations are considered to have been
+refreshed, just as if the server had sent them again.
+
+    >>> second_service = CookbookWebServiceClient(
+    ...     cache=tempdir, version='devel')
+    send: 'GET /devel/ ...
+    reply: ...304...
+    ...
+    send: 'GET /devel/ ...
+    reply: ...304...
+    ...
+
+Let's quickly create another client before the representation grows
+stale again.
+
+    >>> second_service = CookbookWebServiceClient(
+    ...     cache=tempdir, version='devel')
+
+When the representations are not stale, a new client does not make any
+HTTP requests at all--it fetches representations direct from the
+cache.
+
+Cleanup.
+
+    >>> httplib2.debuglevel = 0
+    >>> shutil.rmtree(tempdir)
+
+Cache filenames
+---------------
+
+lazr.restfulclient caches HTTP repsonses in individual files named
+after the URL accessed. This is behavior derived from httplib2, but
+lazr.restfulclient does two things differently from httplib2.
+
+To see these two things, let's set up a client that uses a temporary
+directory as a cache file. The directory starts out empty.
+
+    >>> from os import listdir
+    >>> tempdir = tempfile.mkdtemp()
+    >>> len(listdir(tempdir))
+    0
+
+As soon as we create a client object, though, lazr.restfulclient
+fetches a JSON and a WADL representation of the service root, and
+caches them individually.
+
+    >>> service = CookbookWebServiceClient(cache=tempdir)
+    >>> cache_contents = listdir(tempdir)
+    >>> for file in sorted(cache_contents):
+    ...     print file
+    cookbooks.dev...application,json...
+    cookbooks.dev...vnd.sun.wadl+xml...
+
+This is the first difference between lazr.restfulclient's caching and
+httplib2's. httplib2 would store all requests for the service root in
+a filename based solely on the URL. This effectively limits httplib2
+to a single representation of a given resource: the WADL
+representation would be overwritten with the JSON
+representation. lazr.restfulclient incorporates the media type in the
+cache filename, so that WADL and JSON representations are stored
+separately.
+
+The second difference has to do with filename length limits. httplib2
+caps filenames at about 240 characters so that cache files can be
+stored on filesystems with 255-character filename length limits. For
+compatibility with eCryptfs filesystems, lazr.restfulclient goes
+further, and caps filenames at 143 characters.
+
+To test out the limit, let's create a cookbook with an incredibly
+long name.
+
+    >>> long_name = (
+    ...     "This cookbook name is amazingly long; so long that it will "
+    ...     "surely be truncated when it is incorporated into a file "
+    ...     "name for the cache. The cache file will contain a cached "
+    ...     "HTTP respone containing a JSON representation of of this "
+    ...     "cookbook, whose name, I repeat, is very long indeed.")
+    >>> len(long_name)
+    281
+
+    >>> import datetime
+    >>> date = datetime.datetime(1994, 1, 1)
+    >>> book = service.cookbooks.create(
+    ...     name=long_name, cuisine="General", copyright_date=date,
+    ...     price=10.22, last_printing=date)
+
+lazr.restfulclient automatically fetched a JSON representation of the
+new cookbook, so it's already present in the cache. Because a
+cookbook's URL incorporates its name, and this cookbook's name is
+incredibly long, it must have been truncated to fit on disk.
+
+    >>> [cookbook_cache_filename] = [file for file in listdir(tempdir)
+    ...                              if 'amazingly' in file]
+
+Indeed, the filename has been truncated to fit in the rough
+143-character safety limit for eCryptfs filesystems.
+
+    >>> len(cookbook_cache_filename)
+    143
+
+Despite the truncation, some of the useful information from the
+cookbook's name makes it into the filename, making it easy to find when
+manually crawling through the cache directory.
+
+    >>> print cookbook_cache_filename
+    cookbooks.dev...This%20cookbook%20name%20is%20amazingly%20long...
+
+To avoid conflicts caused by truncation, the filename always ends with
+an MD5 sum derived from the untruncated URL. Let's create a second
+cookbook whose name differs from the first cookbook only at the end.
+
+    >>> longer_name = long_name + ": The Sequel"
+    >>> book = service.cookbooks.create(
+    ...     name=longer_name, cuisine="General", copyright_date=date,
+    ...     price=10.22, last_printing=date)
+
+This cookbook's URL is identical to the first cookbook's URL for far
+longer than 143 characters. But since the truncated filename
+incorporates an MD5 sum based on the full URL, the two cookbooks are
+cached in separate files.
+
+    >>> [file1, file2] = [file for file in listdir(tempdir)
+    ...                   if 'amazingly' in file]
+
+The filenames are identical up to the last 32 characters, which is
+where the MD5 sum begins. But because the MD5 sums are different, they
+are not completely identical.
+
+    >>> file1[:-32] == file2[:-32]
+    True
+
+    >>> file1 == file2
+    False
+
+Cleanup.
+
+    >>> import shutil
+    >>> shutil.rmtree(tempdir)

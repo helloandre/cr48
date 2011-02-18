@@ -1,0 +1,1 @@
+/usr/share/pyshared/oauth-1.0a.egg-info/dependency_links.txt
