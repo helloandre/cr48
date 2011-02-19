@@ -18,6 +18,7 @@ I took a standard install of Ubuntu 10.10 32 bit and staticly compiled a bunch o
  * mercurial 1.7.5
  * git 1.7.4.1
  * an install script
+ * dropbox support
 
 If you want anything else on here, let me know. Or add it yourself and pull request.
 
