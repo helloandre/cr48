@@ -28,3 +28,12 @@ export PYTHONHOME=$PYTHONPATH
 
 #make sure we can write to this bitch
 sudo mount -i -o remount,exec /home/chronos/user
+
+#start dropbox if it's not running
+#for info on how to get dropbox running on ChromeOS go here: 
+#http://gabeortiz.net/2011/how-to-get-dropbox-working-on-a-cr48-google-chrome-netbook/
+if [ -z "$(pgrep dropbox)" ] && [ -d ~/.dropbox-dist ]
+  then
+   echo "Starting Dropbox.."
+   ~/.dropbox-dist/dropboxd &
+fi
