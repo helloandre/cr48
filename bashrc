@@ -24,7 +24,7 @@ export PATH=$PATH:~/bin
 export VIMRUNTIME=/home/chronos/user/.vim
 export PYTHONPATH=/home/chronos/user
 export PYTHONHOME=$PYTHONPATH
-
+export TERM=screen
 
 #make sure we can write to this bitch
 sudo mount -i -o remount,exec /home/chronos/user
