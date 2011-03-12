@@ -14,6 +14,8 @@ if [[ $- != *i* ]] ; then
 	return
 fi
 
+# Let's go to the home dir
+cd ~
 
 # Put your fun stuff here.
 alias ls='ls --color --group-directories-first'

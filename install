@@ -1,9 +1,13 @@
 #!/bin/bash
+echo "moving libraries..."
 cp -R lib /home/chronos/user/lib
+echo "moving binaries... this may take some time..."
 cp -R bin /home/chronos/user/bin
 cp -R vim /home/chronos/user/.vim
+echo "moving configurations..."
 cp vimrc /home/chronos/user/.vimrc
 cp bashrc /home/chronos/user/.bashrc
 cp screenrc /home/chronos/user/.screenrc
+echo "making everything play nicely"
 source /home/chronos/user/.bashrc
 
