@@ -1,7 +1,7 @@
 " Vim support file to detect file types in scripts
 "
 " Maintainer:	Bram Moolenaar <Bram@vim.org>
-" Last change:	2009 Dec 24
+" Last change:	2010 Sep 22
 
 " This file is called by an autocommand for every file that has just been
 " loaded into a buffer.  It checks if the type of file can be recognized by
@@ -100,6 +100,10 @@ if s:line1 =~ "^#!"
   elseif s:name =~ 'lua'
     set ft=lua
 
+    " Perl 6
+  elseif s:name =~ 'perl6'
+    set ft=perl6
+
     " Perl
   elseif s:name =~ 'perl'
     set ft=perl
@@ -164,7 +168,8 @@ else
     call SetFileTypeSH(s:line1)	" defined in filetype.vim
 
     " Z shell scripts
-  elseif s:line1 =~ '^#compdef\>' || s:line1 =~ '^#autoload\>'
+  elseif s:line1 =~ '^#compdef\>' || s:line1 =~ '^#autoload\>' ||
+        \ "\n".s:line1."\n".s:line2."\n".s:line3."\n".s:line4."\n".s:line5 =~ '\n\s*emulate\s\+\%(-[LR]\s\+\)\=[ckz]\=sh\>'
     set ft=zsh
 
   " ELM Mail files
@@ -316,14 +321,6 @@ else
   " Scheme scripts
   elseif s:line1 =~ 'exec\s\+\S*scheme' || s:line2 =~ 'exec\s\+\S*scheme'
     set ft=scheme
-
-  " rst files
-  elseif s:line1 =~ '^\.\.\s\|^\s*restindex\s*$'
-	\ || s:line2 =~ '^\.\.\s\|^\s*restindex\s*$'
-	\ || s:line3 =~ '^\.\.\s\|^\s*restindex\s*$'
-	\ || s:line4 =~ '^\.\.\s\|^\s*restindex\s*$'
-	\ || s:line5 =~ '^\.\.\s\|^\s*restindex\s*$'
-    set ft=rst
 
   " Git output
   elseif s:line1 =~ '^\(commit\|tree\|object\) \x\{40\}\>\|^tag \S\+$'

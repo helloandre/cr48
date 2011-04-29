@@ -1,8 +1,8 @@
 " SQL filetype plugin file
 " Language:    SQL (Common for Oracle, Microsoft SQL Server, Sybase)
-" Version:     6.0
-" Maintainer:  David Fishburn <fishburn at ianywhere dot com>
-" Last Change: 2009 Aug 04
+" Version:     8.0
+" Maintainer:  David Fishburn <dfishburn dot vim at gmail dot com>
+" Last Change: 2011 Apr 01
 " Download:    http://vim.sourceforge.net/script.php?script_id=454
 
 " For more details please use:
@@ -35,6 +35,15 @@
 "     :SQLGetType
 "
 " History
+"
+" Version 8.0
+" 
+" NF: Improved the matchit plugin regex (Talek)
+"
+" Version 7.0
+" 
+" NF: Calls the sqlcomplete#ResetCacheSyntax() function when calling
+"     SQLSetType.
 "
 " Version 6.0
 " 
@@ -164,12 +173,26 @@ if !exists("*SQL_SetType")
         endif
         let b:sql_type_override = new_sql_type
 
+        " Remove any cached SQL since a new sytax will have different
+        " items and groups
+        if !exists('g:loaded_sql_completion') || 100 == g:loaded_sql_completion
+            call sqlcomplete#ResetCacheSyntax()
+        endif
+
         " Vim will automatically source the correct files if we
         " change the filetype.  You cannot do this with setfiletype
         " since that command will only execute if a filetype has
         " not already been set.  In this case we want to override
         " the existing filetype.
         let &filetype = 'sql'
+
+        if b:sql_compl_savefunc != ""
+            " We are changing the filetype to SQL from some other filetype
+            " which had OMNI completion defined.  We need to activate the
+            " SQL completion plugin in order to cache some of the syntax items
+            " while the syntax rules for SQL are active.
+            call sqlcomplete#PreCacheSyntax()
+        endif
     endfunction
     command! -nargs=* -complete=custom,SQL_GetList SQLSetType :call SQL_SetType(<q-args>)
 
@@ -271,6 +294,7 @@ if !exists("b:match_words")
     " WHEN OTHERS THEN
     "
     " create[ or replace] procedure|function|event
+                " \ '^\s*\<\%(do\|for\|while\|loop\)\>.*:'.
 
     let b:match_words =
 		\ '\<begin\>:\<end\>\W*$,'.
@@ -279,12 +303,9 @@ if !exists("b:match_words")
                 \ '\<elsif\>\|\<elseif\>\|\<else\>:'.
                 \ '\<end\s\+if\>,'.
                 \
-                \ '\<do\>\|'.
-                \ '\<while\>\|'.
-                \ '\%(' . s:notend . '\<loop\>\)\|'.
-                \ '\%(' . s:notend . '\<for\>\):'.
-                \ '\<exit\>\|\<leave\>\|\<break\>\|\<continue\>:'.
-                \ '\%(\<end\s\+\%(for\|loop\>\)\)\|\<doend\>,'.
+                \ '\(^\s*\)\@<=\(\<\%(do\|for\|while\|loop\)\>.*\):'.
+                \ '\%(\<exit\>\|\<leave\>\|\<break\>\|\<continue\>\):'.
+                \ '\%(\<doend\>\|\%(\<end\s\+\%(for\|while\|loop\>\)\)\),'.
                 \
                 \ '\%('. s:notend . '\<case\>\):'.
                 \ '\%('.s:when_no_matched_or_others.'\):'.
@@ -463,6 +484,7 @@ if exists('&omnifunc')
         " which had OMNI completion defined.  We need to activate the
         " SQL completion plugin in order to cache some of the syntax items
         " while the syntax rules for SQL are active.
+        call sqlcomplete#ResetCacheSyntax()
         call sqlcomplete#PreCacheSyntax()
     endif
 endif

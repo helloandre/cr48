@@ -40,7 +40,7 @@ syn keyword grubCommand       contained bootp color device dhcp hide ifconfig
                               \ displaymem embed find fstest geometry halt help
                               \ impsprobe initrd install ioprobe kernel lock
                               \ makeactive map md5crypt module modulenounzip pause
-                              \ quiet quit reboot read root rootnoverify savedefault setup
+                              \ quit reboot read root rootnoverify savedefault setup
                               \ testload testvbe uppermem vbeprobe
 
 syn keyword grubSpecial       saved
