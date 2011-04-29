@@ -21,6 +21,7 @@ I took a standard install of Ubuntu 10.10 32 bit and staticly compiled a bunch o
  * GNU diffutils 3.0
  * rsync 3.0.8
  * Info-ZIP unzip 6.0 and zip 3.0
+ * GNU less 443
  * an install script
  * dropbox support
 
