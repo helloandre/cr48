@@ -13,10 +13,13 @@ The purpose of this is to make the CR-48 more useful and conducive to coding. Th
 I took a standard install of Ubuntu 10.10 32 bit and staticly compiled a bunch of programs with it. Some programs need special paths set (see .bashrc). It's really that simple.
 
 ### What is included
- * vim 7.3 (with no gui and some nice .vimrc tweaks)
+ * vim 7.3.170 (with no gui and some nice .vimrc tweaks)
  * python 2.6.6 (currently throwing a libz.so and libcrypto.so errors, but nothing serious)
  * mercurial 1.7.5
  * git 1.7.4.1
+ * Subversion 1.6.16
+ * GNU diffutils 3.0
+ * rsync 3.0.8
  * an install script
  * dropbox support
 
