@@ -1,14 +1,14 @@
 " Vim filetype plugin file (GUI menu, folding and completion)
-" Language:	Debian Changelog
-" Maintainer:	Debian Vim Maintainers <pkg-vim-maintainers@lists.alioth.debian.org>
-" Former Maintainers:	Michael Piefel <piefel@informatik.hu-berlin.de>
-"			Stefano Zacchiroli <zack@debian.org>
-" Last Change:	2008-03-08
-" License:	GNU GPL, version 2.0 or later
-" URL:		http://git.debian.org/?p=pkg-vim/vim.git;a=blob_plain;f=runtime/ftplugin/debchangelog.vim;hb=debian
+" Language:     Debian Changelog
+" Maintainer:   Debian Vim Maintainers <pkg-vim-maintainers@lists.alioth.debian.org>
+" Former Maintainers:   Michael Piefel <piefel@informatik.hu-berlin.de>
+"                       Stefano Zacchiroli <zack@debian.org>
+" Last Change:  2010-07-11
+" License:      GNU GPL, version 2.0 or later
+" URL:          http://hg.debian.org/hg/pkg-vim/vim/file/unstable/runtime/ftplugin/debchangelog.vim
 
 " Bug completion requires apt-listbugs installed for Debian packages or
-" python-launchpadlib >= 1.5.4 installed for Ubuntu packages
+" python-launchpadlib installed for Ubuntu packages
 
 if exists("b:did_ftplugin")
   finish
@@ -228,7 +228,7 @@ endfunction
 
 augroup changelogMenu
 au BufEnter * if &filetype == "debchangelog" | call <SID>MakeMenu() | endif
-au BufLeave * if &filetype == "debchangelog" | aunmenu Changelog | endif
+au BufLeave * if &filetype == "debchangelog" | silent! aunmenu Changelog | endif
 augroup END
 
 " }}}
@@ -333,9 +333,12 @@ try:
     from lazr.restfulclient.errors import HTTPError
     # login anonymously
     lp = Launchpad.login_anonymously('debchangelog.vim', 'production')
+    ubuntu = lp.distributions['ubuntu']
     try:
-        dsp = lp.load('%s/ubuntu/+source/%s' % (lp._root_uri, vim.eval('pkgsrc')))
-        tasklist = dsp.searchTasks(status = ('New', 'Incomplete', 'Confirmed', 'Triaged', 'In Progress', 'Fix Committed'), order_by='id')
+        sp = ubuntu.getSourcePackage(name=vim.eval('pkgsrc'))
+        status = ('New', 'Incomplete', 'Confirmed', 'Triaged',
+                  'In Progress', 'Fix Committed')
+        tasklist = sp.searchTasks(status=status, order_by='id')
         liststr = '['
         for task in tasklist:
             bug = task.bug

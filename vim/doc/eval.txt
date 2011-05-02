@@ -1,4 +1,4 @@
-*eval.txt*	For Vim version 7.2.  Last change: 2010 Jan 05
+*eval.txt*	For Vim version 7.3.  Last change: 2011 Mar 18
 
 
 		  VIM REFERENCE MANUAL	  by Bram Moolenaar
@@ -63,21 +63,21 @@ The Number and String types are converted automatically, depending on how they
 are used.
 
 Conversion from a Number to a String is by making the ASCII representation of
-the Number.  Examples: >
-	Number 123	-->	String "123"
-	Number 0	-->	String "0"
-	Number -1	-->	String "-1"
-
+the Number.  Examples:
+	Number 123	-->	String "123" ~
+	Number 0	-->	String "0" ~
+	Number -1	-->	String "-1" ~
+							*octal*
 Conversion from a String to a Number is done by converting the first digits
 to a number.  Hexadecimal "0xf9" and Octal "017" numbers are recognized.  If
-the String doesn't start with digits, the result is zero.  Examples: >
-	String "456"	-->	Number 456
-	String "6bar"	-->	Number 6
-	String "foo"	-->	Number 0
-	String "0xf1"	-->	Number 241
-	String "0100"	-->	Number 64
-	String "-8"	-->	Number -8
-	String "+8"	-->	Number 0
+the String doesn't start with digits, the result is zero.  Examples:
+	String "456"	-->	Number 456 ~
+	String "6bar"	-->	Number 6 ~
+	String "foo"	-->	Number 0 ~
+	String "0xf1"	-->	Number 241 ~
+	String "0100"	-->	Number 64 ~
+	String "-8"	-->	Number -8 ~
+	String "+8"	-->	Number 0 ~
 
 To force conversion from String to Number, add zero to it: >
 	:echo "0100" + 0
@@ -534,6 +534,10 @@ that references this function.	The function can only be used through a
 remaining that refers to it.
 
 It is not necessary to use the "dict" attribute for a numbered function.
+
+If you get an error for a numbered function, you can find out what it is with
+a trick.  Assuming the function is 42, the command is: >
+	:function {42}
 
 
 Functions for Dictionaries ~
@@ -1020,7 +1024,9 @@ A string constant accepts these special characters:
 \t	tab <Tab>
 \\	backslash
 \"	double quote
-\<xxx>	Special key named "xxx".  e.g. "\<C-W>" for CTRL-W.
+\<xxx>	Special key named "xxx".  e.g. "\<C-W>" for CTRL-W.  This is for use
+	in mappings, the 0x80 byte is escaped.  Don't use <Char-xxxx> to get a
+	utf-8 character, use \uxxxx as mentioned above.
 
 Note that "\xff" is stored as the byte 255, which may be invalid in some
 encodings.  Use "\u00ff" to store character 255 according to the current value
@@ -1109,8 +1115,8 @@ See below |functions|.
 
 
 ==============================================================================
-3. Internal variable				*internal-variables* *E121*
-									*E461*
+3. Internal variable				*internal-variables* *E461*
+
 An internal variable name can be made up of letters, digits and '_'.  But it
 cannot start with a digit.  It's also possible to use curly braces, see
 |curly-braces-names|.
@@ -1164,7 +1170,7 @@ is deleted when the window is closed.
 						*tabpage-variable* *t:var*
 A variable name that is preceded with "t:" is local to the current tab page,
 It is deleted when the tab page is closed. {not available when compiled
-without the +windows feature}
+without the |+windows| feature}
 
 						*global-variable* *g:var*
 Inside functions global variables are accessed with "g:".  Omitting this will
@@ -1280,11 +1286,13 @@ v:beval_text	The text under or after the mouse pointer.  Usually a word as
 
 					*v:beval_winnr* *beval_winnr-variable*
 v:beval_winnr	The number of the window, over which the mouse pointer is. Only
-		valid while evaluating the 'balloonexpr' option.
+		valid while evaluating the 'balloonexpr' option.  The first
+		window has number zero (unlike most other places where a
+		window gets a number).
 
 					*v:char* *char-variable*
 v:char		Argument for evaluating 'formatexpr' and used for the typed
-		character when using <expr> in an abbreviation |map-<expr>|.
+		character when using <expr> in an abbreviation |:map-<expr>|.
 
 			*v:charconvert_from* *charconvert_from-variable*
 v:charconvert_from
@@ -1346,7 +1354,9 @@ v:dying		Normally zero.	When a deadly signal is caught it's set to
 		terminate normally. {only works on Unix}
 		Example: >
 	:au VimLeave * if v:dying | echo "\nAAAAaaaarrrggghhhh!!!\n" | endif
-<
+<		Note: if another deadly signal is caught when v:dying is one,
+		VimLeave autocommands will not be executed.
+
 					*v:errmsg* *errmsg-variable*
 v:errmsg	Last given error message.  It's allowed to set this variable.
 		Example: >
@@ -1470,10 +1480,11 @@ v:lc_time	The current locale setting for time messages of the runtime
 		command.  See |multi-lang|.
 
 						*v:lnum* *lnum-variable*
-v:lnum		Line number for the 'foldexpr' |fold-expr| and 'indentexpr'
-		expressions, tab page number for 'guitablabel' and
-		'guitabtooltip'.  Only valid while one of these expressions is
-		being evaluated.  Read-only when in the |sandbox|.
+v:lnum		Line number for the 'foldexpr' |fold-expr|, 'formatexpr' and
+		'indentexpr' expressions, tab page number for 'guitablabel'
+		and 'guitabtooltip'.  Only valid while one of these
+		expressions is being evaluated.  Read-only when in the
+		|sandbox|.
 
 					*v:mouse_win* *mouse_win-variable*
 v:mouse_win	Window number for a mouse click obtained with |getchar()|.
@@ -1499,7 +1510,7 @@ v:oldfiles	List of file names that is loaded from the |viminfo| file on
 		The List can be modified, but this has no effect on what is
 		stored in the |viminfo| file later.  If you use values other
 		than String this will cause trouble.
-		{only when compiled with the +viminfo feature}
+		{only when compiled with the |+viminfo| feature}
 
 					*v:operator* *operator-variable*
 v:operator	The last operator given in Normal mode.  This is a single
@@ -1533,8 +1544,9 @@ v:progname	Contains the name (with path removed) with which Vim was
 		Read-only.
 
 					*v:register* *register-variable*
-v:register	The name of the register supplied to the last normal mode
-		command.  Empty if none were supplied. |getreg()| |setreg()|
+v:register	The name of the register in effect for the current normal mode
+		command.  If none is supplied it is the default register.
+		Also see |getreg()| and |setreg()|
 
 					*v:scrollstart* *scrollstart-variable*
 v:scrollstart	String describing the script or function that caused the
@@ -1648,6 +1660,15 @@ v:version	Version number of Vim: Major version number times 100 plus
 					*v:warningmsg* *warningmsg-variable*
 v:warningmsg	Last given warning message.  It's allowed to set this variable.
 
+					*v:windowid* *windowid-variable*
+v:windowid	When any X11 based GUI is running or when running in a
+		terminal and Vim connects to the X server (|-X|) this will be
+		set to the window ID.
+		When an MS-Windows GUI is running this will be set to the
+		window handle.
+		Otherwise the value is zero.
+		Note: for windows inside Vim use |winnr()|.
+
 ==============================================================================
 4. Builtin Functions					*functions*
 
@@ -1658,6 +1679,7 @@ See |function-list| for a list grouped by what the function is used for.
 USAGE				RESULT	DESCRIPTION	~
 
 abs( {expr})			Float or Number  absolute value of {expr}
+acos( {expr})			Float	arc cosine of {expr}
 add( {list}, {item})		List	append {item} to |List| {list}
 append( {lnum}, {string})	Number	append {string} below line {lnum}
 append( {lnum}, {list})		Number	append lines {list} below line {lnum}
@@ -1665,7 +1687,9 @@ argc()				Number	number of files in the argument list
 argidx()			Number	current index in the argument list
 argv( {nr})			String	{nr} entry of the argument list
 argv( )				List	the argument list
+asin( {expr})			Float	arc sine of {expr}
 atan( {expr})			Float	arc tangent of {expr}
+atan2( {expr}, {expr})		Float   arc tangent of {expr1} / {expr2}
 browse( {save}, {title}, {initdir}, {default})
 				String	put up a file requester
 browsedir( {title}, {initdir})	String	put up a directory requester
@@ -1692,6 +1716,7 @@ confirm( {msg} [, {choices} [, {default} [, {type}]]])
 				Number	number of choice picked by user
 copy( {expr})			any	make a shallow copy of {expr}
 cos( {expr})			Float	cosine of {expr}
+cosh( {expr})			Float	hyperbolic cosine of {expr}
 count( {list}, {expr} [, {start} [, {ic}]])
 				Number	 count how many {expr} are in {list}
 cscope_connection( [{num} , {dbpath} [, {prepend}]])
@@ -1712,6 +1737,7 @@ executable( {expr})		Number	1 if executable {expr} exists
 exists( {expr})			Number	TRUE if {expr} exists
 extend( {expr1}, {expr2} [, {expr3}])
 				List/Dict insert items of {expr2} into {expr1}
+exp( {expr})			Float	exponential of {expr}
 expand( {expr} [, {flag}])	String	expand special keywords in {expr}
 feedkeys( {string} [, {mode}])	Number	add key sequence to typeahead buffer
 filereadable( {file})		Number	TRUE if {file} is a readable file
@@ -1724,6 +1750,7 @@ findfile( {name}[, {path}[, {count}]])
 				String	find file {name} in {path}
 float2nr( {expr})		Number	convert Float {expr} to a Number
 floor( {expr})			Float	round {expr} down
+fmod( {expr1}, {expr2})		Float	remainder of {expr1} / {expr2}
 fnameescape( {fname})		String	escape special characters in {fname}
 fnamemodify( {fname}, {mods})	String	modify file name
 foldclosed( {lnum})		Number	first line of fold at {lnum} if closed
@@ -1759,6 +1786,7 @@ getpos( {expr})			List	position of cursor, mark, etc.
 getqflist()			List	list of quickfix items
 getreg( [{regname} [, 1]])	String	contents of register
 getregtype( [{regname}])	String	type of register
+gettabvar( {nr}, {varname})	any	variable {varname} in tab {nr}
 gettabwinvar( {tabnr}, {winnr}, {name})
 				any	{name} in {winnr} in tab page {tabnr}
 getwinposx()			Number	X coord in pixels of GUI Vim window
@@ -1803,9 +1831,10 @@ line( {expr})			Number	line nr of cursor, last line or mark
 line2byte( {lnum})		Number	byte count of line {lnum}
 lispindent( {lnum})		Number	Lisp indent for line {lnum}
 localtime()			Number	current time
+log( {expr})			Float	natural logarithm (base e) of {expr}
 log10( {expr})			Float	logarithm of Float {expr} to base 10
 map( {expr}, {string})		List/Dict  change each item in {expr} to {expr}
-maparg( {name}[, {mode} [, {abbr}]])
+maparg( {name}[, {mode} [, {abbr} [, {dict}]]])
 				String	rhs of mapping {name} in mode {mode}
 mapcheck( {name}[, {mode} [, {abbr}]])
 				String	check for mappings matching {name}
@@ -1826,6 +1855,7 @@ min( {list})			Number	minimum value of items in {list}
 mkdir( {name} [, {path} [, {prot}]])
 				Number	create directory {name}
 mode( [expr])			String	current editing mode
+mzeval( {expr})			any	evaluate |MzScheme| expression
 nextnonblank( {lnum})		Number	line nr of non-blank line >= {lnum}
 nr2char( {expr})		String	single char with ASCII value {expr}
 pathshorten( {expr})		String	shorten directory names in a path
@@ -1876,6 +1906,7 @@ setmatches( {list})		Number	restore a list of matches
 setpos( {expr}, {list})		Number	set the {expr} position to {list}
 setqflist( {list}[, {action}])	Number	modify quickfix list using {list}
 setreg( {n}, {v}[, {opt}])	Number	set register to value and type
+settabvar( {nr}, {varname}, {val})	set {varname} in tab page {nr} to {val}
 settabwinvar( {tabnr}, {winnr}, {varname}, {val})    set {varname} in window
 					{winnr} in tab page {tabnr} to {val}
 setwinvar( {nr}, {varname}, {val})	set {varname} in window {nr} to {val}
@@ -1884,6 +1915,7 @@ shellescape( {string} [, {special}])
 					command argument
 simplify( {filename})		String	simplify filename as much as possible
 sin( {expr})			Float	sine of {expr}
+sinh( {expr})			Float	hyperbolic sine of {expr}
 sort( {list} [, {func}])	List	sort {list}, using {func} to compare
 soundfold( {word})		String	sound-fold {word}
 spellbadword()			String	badly spelled word at cursor
@@ -1891,9 +1923,11 @@ spellsuggest( {word} [, {max} [, {capital}]])
 				List	spelling suggestions
 split( {expr} [, {pat} [, {keepempty}]])
 				List	make |List| from {pat} separated {expr}
-sqrt( {expr}			Float	squar root of {expr}
+sqrt( {expr})			Float	square root of {expr}
 str2float( {expr})		Float	convert String to Float
 str2nr( {expr} [, {base}])	Number	convert String to Number
+strchars( {expr})		Number	character length of the String {expr}
+strdisplaywidth( {expr} [, {col}]) Number display length of the String {expr}
 strftime( {format}[, {time}])	String	time in specified format
 stridx( {haystack}, {needle}[, {start}])
 				Number	index of {needle} in {haystack}
@@ -1904,6 +1938,7 @@ strpart( {src}, {start}[, {len}])
 strridx( {haystack}, {needle} [, {start}])
 				Number	last index of {needle} in {haystack}
 strtrans( {expr})		String	translate string to make it printable
+strwidth( {expr})		Number	display cell length of the String {expr}
 submatch( {nr})			String	specific match in ":substitute"
 substitute( {expr}, {pat}, {sub}, {flags})
 				String	all {pat} in {expr} replaced with {sub}
@@ -1911,6 +1946,7 @@ synID( {lnum}, {col}, {trans})	Number	syntax ID at {lnum} and {col}
 synIDattr( {synID}, {what} [, {mode}])
 				String	attribute {what} of syntax ID {synID}
 synIDtrans( {synID})		Number	translated syntax ID of {synID}
+synconcealed( {lnum}, {col})	List    info about concealing
 synstack( {lnum}, {col})	List	stack of syntax IDs at {lnum} and {col}
 system( {expr} [, {input}])	String	output of shell command/filter {expr}
 tabpagebuflist( [{arg}])	List	list of buffer numbers in tab page
@@ -1920,12 +1956,16 @@ tabpagewinnr( {tabarg}[, {arg}])
 taglist( {expr})		List	list of tags matching {expr}
 tagfiles()			List	tags files used
 tempname()			String	name for a temporary file
+tan( {expr})			Float	tangent of {expr}
+tanh( {expr})			Float	hyperbolic tangent of {expr}
 tolower( {expr})		String	the String {expr} switched to lowercase
 toupper( {expr})		String	the String {expr} switched to uppercase
 tr( {src}, {fromstr}, {tostr})	String	translate chars of {src} in {fromstr}
 					to chars in {tostr}
-trunc( {expr}			Float	truncate Float {expr}
+trunc( {expr})			Float	truncate Float {expr}
 type( {name})			Number	type of variable {name}
+undofile( {name})		String	undo file name for {name}
+undotree()			List	undo file tree
 values( {dict})			List	values in {dict}
 virtcol( {expr})		Number	screen column of cursor or mark
 visualmode( [expr])		String	last visual mode used
@@ -1954,6 +1994,20 @@ abs({expr})							*abs()*
 			echo abs(-4)
 <			4
 		{only available when compiled with the |+float| feature}
+
+
+acos({expr})							*acos()*
+		Return the arc cosine of {expr} measured in radians, as a
+		|Float| in the range of [0, pi].
+		{expr} must evaluate to a |Float| or a |Number| in the range
+		[-1, 1].
+		Examples: >
+			:echo acos(0)
+<			1.570796 >
+			:echo acos(-0.5)
+<			2.094395
+		{only available when compiled with the |+float| feature}
+
 
 add({list}, {expr})					*add()*
 		Append the item {expr} to |List| {list}.  Returns the
@@ -1997,6 +2051,19 @@ argv([{nr}])	The result is the {nr}th file in the argument list of the
 <		Without the {nr} argument a |List| with the whole |arglist| is
 		returned.
 
+asin({expr})						*asin()*
+		Return the arc sine of {expr} measured in radians, as a |Float|
+		in the range of [-pi/2, pi/2].
+		{expr} must evaluate to a |Float| or a |Number| in the range
+		[-1, 1].
+		Examples: >
+			:echo asin(0.8)
+<			0.927295 >
+			:echo asin(-0.5)
+<			-0.523599
+		{only available when compiled with the |+float| feature}
+
+
 atan({expr})						*atan()*
 		Return the principal value of the arc tangent of {expr}, in
 		the range [-pi/2, +pi/2] radians, as a |Float|.
@@ -2007,6 +2074,19 @@ atan({expr})						*atan()*
 			:echo atan(-4.01)
 <			-1.326405
 		{only available when compiled with the |+float| feature}
+
+
+atan2({expr1}, {expr2})					*atan2()*
+		Return the arc tangent of {expr1} / {expr2}, measured in
+		radians, as a |Float| in the range [-pi, pi].
+		{expr1} and {expr2} must evaluate to a |Float| or a |Number|.
+		Examples: >
+			:echo atan2(-1, 1)
+<			-0.785398 >
+			:echo atan2(1, -1)
+<			2.356194
+		{only available when compiled with the |+float| feature}
+
 
 							*browse()*
 browse({save}, {title}, {initdir}, {default})
@@ -2291,11 +2371,13 @@ confirm({msg} [, {choices} [, {default} [, {type}]]])
 		choice this is 1.
 		Note: confirm() is only supported when compiled with dialog
 		support, see |+dialog_con| and |+dialog_gui|.
+
 		{msg} is displayed in a |dialog| with {choices} as the
 		alternatives.  When {choices} is missing or empty, "&OK" is
 		used (and translated).
 		{msg} is a String, use '\n' to include a newline.  Only on
 		some systems the string is wrapped when it doesn't fit.
+
 		{choices} is a String, with the individual choices separated
 		by '\n', e.g. >
 			confirm("Save changes?", "&Yes\n&No\n&Cancel")
@@ -2305,15 +2387,18 @@ confirm({msg} [, {choices} [, {default} [, {type}]]])
 			confirm("file has been modified", "&Save\nSave &All")
 <		For the console, the first letter of each choice is used as
 		the default shortcut key.
+
 		The optional {default} argument is the number of the choice
 		that is made if the user hits <CR>.  Use 1 to make the first
 		choice the default one.  Use 0 to not set a default.  If
 		{default} is omitted, 1 is used.
-		The optional {type} argument gives the type of dialog.	This
-		is only used for the icon of the Win32 GUI.  It can be one of
-		these values: "Error", "Question", "Info", "Warning" or
-		"Generic".  Only the first character is relevant.  When {type}
-		is omitted, "Generic" is used.
+
+		The optional {type} argument gives the type of dialog.  This
+		is only used for the icon of the GTK, Mac, Motif and Win32
+		GUI.  It can be one of these values: "Error", "Question",
+		"Info", "Warning" or "Generic".  Only the first character is
+		relevant.  When {type} is omitted, "Generic" is used.
+
 		If the user aborts the dialog by pressing <Esc>, CTRL-C,
 		or another valid interrupt key, confirm() returns 0.
 
@@ -2350,6 +2435,18 @@ cos({expr})						*cos()*
 <			0.862319 >
 			:echo cos(-4.01)
 <			-0.646043
+		{only available when compiled with the |+float| feature}
+
+
+cosh({expr})						*cosh()*
+		Return the hyperbolic cosine of {expr} as a |Float| in the range
+		[1, inf].
+		{expr} must evaluate to a |Float| or a |Number|.
+		Examples: >
+			:echo cosh(0.5)
+<			1.127626 >
+			:echo cosh(-0.5)
+<			-1.127626
 		{only available when compiled with the |+float| feature}
 
 		
@@ -2612,9 +2709,21 @@ exists({expr})	The result is a Number, which is non-zero if {expr} is
 <		This doesn't check for existence of the "bufcount" variable,
 		but gets the value of "bufcount", and checks if that exists.
 
+exp({expr})						*exp()*
+		Return the exponential of {expr} as a |Float| in the range
+		[0, inf].
+		{expr} must evaluate to a |Float| or a |Number|.
+		Examples: >
+			:echo exp(2)
+<			7.389056 >
+			:echo exp(-1)
+<			0.367879
+		{only available when compiled with the |+float| feature}
+
+
 expand({expr} [, {flag}])				*expand()*
 		Expand wildcards and the following special keywords in {expr}.
-		The result is a String.
+		The result is a String.  'wildignorecase' applies.
 
 		When there are several matches, they are separated by <NL>
 		characters.  [Note: in version 5.0 a space was used, which
@@ -2635,6 +2744,7 @@ expand({expr} [, {flag}])				*expand()*
 			<abuf>		autocmd buffer number (as a String!)
 			<amatch>	autocmd matched name
 			<sfile>		sourced script file name
+			<slnum>		sourced script file line number
 			<cword>		word under the cursor
 			<cWORD>		WORD under the cursor
 			<client>	the {clientid} of the last received
@@ -2800,7 +2910,8 @@ finddir({name}[, {path}[, {count}]])				*finddir()*
 		{name} in {path} instead of the first one.
 		When {count} is negative return all the matches in a |List|.
 		This is quite similar to the ex-command |:find|.
-		{only available when compiled with the +file_in_path feature}
+		{only available when compiled with the |+file_in_path|
+		feature}
 
 findfile({name}[, {path}[, {count}]])				*findfile()*
 		Just like |finddir()|, but find a file instead of a directory.
@@ -2844,6 +2955,23 @@ floor({expr})							*floor()*
 <			4.0
 		{only available when compiled with the |+float| feature}
 		
+
+fmod({expr1}, {expr2})					*fmod()*
+		Return the remainder of {expr1} / {expr2}, even if the
+		division is not representable.  Returns {expr1} - i * {expr2}
+		for some integer i such that if {expr2} is non-zero, the
+		result has the same sign as {expr1} and magnitude less than
+		the magnitude of {expr2}.  If {expr2} is zero, the value
+		returned is zero.  The value returned is a |Float|.
+		{expr1} and {expr2} must evaluate to a |Float| or a |Number|.
+		Examples: >
+			:echo fmod(12.33, 1.22)
+<			0.13 >
+			:echo fmod(-12.33, 1.22)
+<			-0.13
+		{only available when compiled with |+float| feature}
+
+
 fnameescape({string})					*fnameescape()*
 		Escape {string} for use as file name command argument.	All
 		characters that have a special meaning, such as '%' and '|'
@@ -3260,6 +3388,12 @@ getregtype([{regname}])					*getregtype()*
 		<CTRL-V> is one character with value 0x16.
 		If {regname} is not specified, |v:register| is used.
 
+gettabvar({tabnr}, {varname})				*gettabvar()*
+		Get the value of a tab-local variable {varname} in tab page
+		{tabnr}. |t:var|
+		Tabs are numbered starting with one.
+		Note that the name without "t:" must be used.
+
 gettabwinvar({tabnr}, {winnr}, {varname})		*gettabwinvar()*
 		Get the value of window-local variable {varname} in window
 		{winnr} in tab page {tabnr}.
@@ -3304,6 +3438,7 @@ glob({expr} [, {flag}])					*glob()*
 		the 'suffixes' and 'wildignore' options apply: Names matching
 		one of the patterns in 'wildignore' will be skipped and
 		'suffixes' affect the ordering of matches.
+		'wildignorecase' always applies.
 		If the expansion fails, the result is an empty string.
 		A name for a non-existing file is not included.
 
@@ -3499,7 +3634,7 @@ iconv({expr}, {from}, {to})				*iconv()*
 <		Note that Vim uses UTF-8 for all Unicode encodings, conversion
 		from/to UCS-2 is automatically changed to use UTF-8.  You
 		cannot use UCS-2 in a string anyway, because of the NUL bytes.
-		{only available when compiled with the +multi_byte feature}
+		{only available when compiled with the |+multi_byte| feature}
 
 							*indent()*
 indent({lnum})	The result is a Number, which is indent of line {lnum} in the
@@ -3799,6 +3934,18 @@ localtime()						*localtime()*
 		1970.  See also |strftime()| and |getftime()|.
 
 
+log({expr})						*log()*
+		Return the natural logarithm (base e) of {expr} as a |Float|.
+		{expr} must evaluate to a |Float| or a |Number| in the range
+		(0, inf].
+		Examples: >
+			:echo log(10)
+<			2.302585 >
+			:echo log(exp(5))
+<			5.0
+		{only available when compiled with the |+float| feature}
+
+
 log10({expr})						*log10()*
 		Return the logarithm of Float {expr} to base 10 as a |Float|.
 		{expr} must evaluate to a |Float| or a |Number|.
@@ -3834,23 +3981,51 @@ map({expr}, {string})					*map()*
 		further items in {expr} are processed.
 
 
-maparg({name}[, {mode} [, {abbr}]])			*maparg()*
-		Return the rhs of mapping {name} in mode {mode}.  When there
-		is no mapping for {name}, an empty String is returned.
+maparg({name}[, {mode} [, {abbr} [, {dict}]]])			*maparg()*
+		When {dict} is omitted or zero: Return the rhs of mapping
+		{name} in mode {mode}.  The returned String has special
+		characters translated like in the output of the ":map" command
+		listing.
+		
+		When there is no mapping for {name}, an empty String is
+		returned.
+
+		The {name} can have special key names, like in the ":map"
+		command.
+
 		{mode} can be one of these strings:
 			"n"	Normal
-			"v"	Visual
+			"v"	Visual (including Select)
 			"o"	Operator-pending
 			"i"	Insert
 			"c"	Cmd-line
+			"s"	Select
+			"x"	Visual
 			"l"	langmap |language-mapping|
 			""	Normal, Visual and Operator-pending
 		When {mode} is omitted, the modes for "" are used.
+
 		When {abbr} is there and it is non-zero use abbreviations
 		instead of mappings.
-		The {name} can have special key names, like in the ":map"
-		command.  The returned String has special characters
-		translated like in the output of the ":map" command listing.
+
+		When {dict} is there and it is non-zero return a dictionary
+		containing all the information of the mapping with the
+		following items:
+		  "lhs"	     The {lhs} of the mapping.
+		  "rhs"	     The {rhs} of the mapping as typed.
+		  "silent"   1 for a |:map-silent| mapping, else 0.
+		  "noremap"  1 if the {rhs} of the mapping is not remappable.
+		  "expr"     1 for an expression mapping (|:map-<expr>|).
+		  "buffer"   1 for a buffer local mapping (|:map-local|).
+		  "mode"     Modes for which the mapping is defined. In
+			     addition to the modes mentioned above, these
+			     characters will be used:
+			     " "     Normal, Visual and Operator-pending
+			     "!"     Insert and Commandline mode
+				     (|mapmode-ic|)
+		  "sid"	     The script local ID, used for <sid> mappings
+			     (|<SID>|).
+
 		The mappings local to the current buffer are checked first,
 		then the global mappings.
 		This function can be used to map a key even when it's already
@@ -4101,6 +4276,23 @@ mode([expr])	Return a string that indicates the current mode.
 		with |remote_expr()| In most other places it always returns
 		"c" or "n".
 		Also see |visualmode()|.
+
+mzeval({expr})							*mzeval()*
+		Evaluate MzScheme expression {expr} and return its result
+		convert to Vim data structures.
+		Numbers and strings are returned as they are.
+		Pairs (including lists and improper lists) and vectors are
+		returned as Vim |Lists|.
+		Hash tables are represented as Vim |Dictionary| type with keys
+		converted to strings.
+		All other types are converted to string with display function.
+		Examples: >
+		    :mz (define l (list 1 2 3))
+		    :mz (define h (make-hash)) (hash-set! h "list" l)
+		    :echo mzeval("l")
+		    :echo mzeval("h")
+<
+		{only available when compiled with the |+mzscheme| feature}
 
 nextnonblank({lnum})					*nextnonblank()*
 		Return the line number of the first line at or below {lnum}
@@ -4376,6 +4568,7 @@ readfile({fname} [, {binary} [, {max}]])
 		as an item.  Lines broken at NL characters.  Macintosh files
 		separated with CR will result in a single long line (unless a
 		NL appears somewhere).
+		All NUL characters are replaced with a NL character.
 		When {binary} is equal to "b" binary mode is used:
 		- When the last line ends in a NL an extra empty list item is
 		  added.
@@ -4383,7 +4576,8 @@ readfile({fname} [, {binary} [, {max}]])
 		Otherwise:
 		- CR characters that appear before a NL are removed.
 		- Whether the last line ends in a NL or not does not matter.
-		All NUL characters are replaced with a NL character.
+		- When 'encoding' is Unicode any UTF-8 byte order mark is
+		  removed from the text.
 		When {max} is given this specifies the maximum number of lines
 		to be read.  Useful if you only want to check the first ten
 		lines of a file: >
@@ -4411,7 +4605,7 @@ reltime([{start} [, {end}]])				*reltime()*
 		and {end}.
 		The {start} and {end} arguments must be values returned by
 		reltime().
-		{only available when compiled with the +reltime feature}
+		{only available when compiled with the |+reltime| feature}
 
 reltimestr({time})				*reltimestr()*
 		Return a String that represents the time value of {time}.
@@ -4426,7 +4620,7 @@ reltimestr({time})				*reltimestr()*
 		can use split() to remove it. >
 			echo split(reltimestr(reltime(start)))[0]
 <		Also see |profiling|.
-		{only available when compiled with the +reltime feature}
+		{only available when compiled with the |+reltime| feature}
 
 							*remote_expr()* *E449*
 remote_expr({server}, {string} [, {idvar}])
@@ -4613,7 +4807,7 @@ search({pattern} [, {flags} [, {stopline} [, {timeout}]]])	*search()*
 		{timeout} is 500 the search stops after half a second.
 		The value must not be negative.  A zero value is like not
 		giving the argument.
-		{only available when compiled with the +reltime feature}
+		{only available when compiled with the |+reltime| feature}
 
 		If there is no match a 0 is returned and the cursor doesn't
 		move.  No error message is given.
@@ -4766,8 +4960,8 @@ searchpairpos({start}, {middle}, {end} [, {flags} [, {skip}
 		column position of the match. The first element of the |List|
 		is the line number and the second element is the byte index of
 		the column position of the match.  If no match is found,
-		returns [0, 0].
->
+		returns [0, 0]. >
+
 			:let [lnum,col] = searchpairpos('{', '', '}', 'n')
 <
 		See |match-parens| for a bigger and more useful example.
@@ -4926,6 +5120,8 @@ setqflist({list} [, {action}])				*setqflist()*
 		item will not be handled as an error line.
 		If both "pattern" and "lnum" are present then "pattern" will
 		be used.
+		If you supply an empty {list}, the quickfix list will be
+		cleared.
 		Note that the list is not exactly the same as what
 		|getqflist()| returns.
 
@@ -4948,7 +5144,7 @@ setreg({regname}, {value} [,{options}])
 		Set the register {regname} to {value}.
 		If {options} contains "a" or {regname} is upper case,
 		then the value is appended.
-		{options} can also contains a register type specification:
+		{options} can also contain a register type specification:
 		    "c" or "v"	      |characterwise| mode
 		    "l" or "V"	      |linewise| mode
 		    "b" or "<CTRL-V>" |blockwise-visual| mode
@@ -4977,6 +5173,15 @@ setreg({regname}, {value} [,{options}])
 <		You can also change the type of a register by appending
 		nothing: >
 			:call setreg('a', '', 'al')
+
+settabvar({tabnr}, {varname}, {val})			*settabvar()*
+		Set tab-local variable {varname} to {val} in tab page {tabnr}.
+		|t:var|
+		Note that the variable name without "t:" must be used.
+		Tabs are numbered starting with one.
+		Vim briefly goes to the tab page {tabnr}, this may trigger
+		TabLeave and TabEnter autocommands.
+		This function is not available in the |sandbox|.
 
 settabwinvar({tabnr}, {winnr}, {varname}, {val})	*settabwinvar()*
 		Set option or local variable {varname} in window {winnr} to
@@ -5053,6 +5258,18 @@ sin({expr})						*sin()*
 <			0.763301
 		{only available when compiled with the |+float| feature}
 		
+
+sinh({expr})						*sinh()*
+		Return the hyperbolic sine of {expr} as a |Float| in the range
+		[-inf, inf].
+		{expr} must evaluate to a |Float| or a |Number|.
+		Examples: >
+			:echo sinh(0.5)
+<			0.521095 >
+			:echo sinh(-0.9)
+<			-1.026517
+		{only available when compiled with the |+float| feature}
+
 
 sort({list} [, {func}])					*sort()* *E702*
 		Sort the items in {list} in-place.  Returns {list}.  If you
@@ -5199,6 +5416,25 @@ str2nr( {expr} [, {base}])				*str2nr()*
 		Text after the number is silently ignored.
 
 
+strchars({expr})					*strchars()*
+		The result is a Number, which is the number of characters
+		String {expr} occupies.  Composing characters are counted
+		separately.
+		Also see |strlen()|, |strdisplaywidth()| and |strwidth()|.
+
+strdisplaywidth({expr}[, {col}])			*strdisplaywidth()*
+		The result is a Number, which is the number of display cells
+		String {expr} occupies on the screen.
+		When {col} is omitted zero is used.  Otherwise it is the
+		screen column where to start.  This matters for Tab
+		characters.
+		The option settings of the current window are used.  This
+		matters for anything that's displayed differently, such as
+		'tabstop' and 'display'.
+		When {expr} contains characters with East Asian Width Class
+		Ambiguous, this function's return value depends on 'ambiwidth'.
+		Also see |strlen()|, |strwidth()| and |strchars()|.
+
 strftime({format} [, {time}])				*strftime()*
 		The result is a String, which is a formatted date and time, as
 		specified by the {format} string.  The given {time} is used,
@@ -5223,8 +5459,8 @@ stridx({haystack}, {needle} [, {start}])		*stridx()*
 		{haystack} of the first occurrence of the String {needle}.
 		If {start} is specified, the search starts at index {start}.
 		This can be used to find a second match: >
-			:let comma1 = stridx(line, ",")
-			:let comma2 = stridx(line, ",", comma1 + 1)
+			:let colon1 = stridx(line, ":")
+			:let colon2 = stridx(line, ":", colon1 + 1)
 <		The search is done case-sensitive.
 		For pattern searches use |match()|.
 		-1 is returned if the {needle} does not occur in {haystack}.
@@ -5261,7 +5497,8 @@ strlen({expr})	The result is a Number, which is the length of the String
 <
 		If the argument is a Number it is first converted to a String.
 		For other types an error is given.
-		Also see |len()|.
+		Also see |len()|, |strchars()|, |strdisplaywidth()| and
+		|strwidth()|.
 
 strpart({src}, {start}[, {len}])			*strpart()*
 		The result is a String, which is part of {src}, starting from
@@ -5303,6 +5540,14 @@ strtrans({expr})					*strtrans()*
 			echo strtrans(@a)
 <		This displays a newline in register a as "^@" instead of
 		starting a new line.
+
+strwidth({expr})					*strwidth()*
+		The result is a Number, which is the number of display cells
+		String {expr} occupies.  A Tab character is counted as one
+		cell, alternatively use |strdisplaywidth()|.
+		When {expr} contains characters with East Asian Width Class
+		Ambiguous, this function's return value depends on 'ambiwidth'.
+		Also see |strlen()|, |strdisplaywidth()| and |strchars()|.
 
 submatch({nr})						*submatch()*
 		Only for an expression in a |:substitute| command.  Returns
@@ -5355,6 +5600,7 @@ synID({lnum}, {col}, {trans})				*synID()*
 		Example (echoes the name of the syntax item under the cursor): >
 			:echo synIDattr(synID(line("."), col("."), 1), "name")
 <
+
 synIDattr({synID}, {what} [, {mode}])			*synIDattr()*
 		The result is a String, which is the {what} attribute of
 		syntax ID {synID}.  This can be used to obtain information
@@ -5370,6 +5616,8 @@ synIDattr({synID}, {what} [, {mode}])			*synIDattr()*
 				the color, cterm: color number as a string,
 				term: empty string)
 		"bg"		background color (as with "fg")
+		"font"		font name (only available in the GUI)
+				|highlight-font|
 		"sp"		special color (as with "fg") |highlight-guisp|
 		"fg#"		like "fg", but for the GUI and the GUI is
 				running the name in "#RRGGBB" form
@@ -5379,6 +5627,7 @@ synIDattr({synID}, {what} [, {mode}])			*synIDattr()*
 		"italic"	"1" if italic
 		"reverse"	"1" if reverse
 		"inverse"	"1" if inverse (= reverse)
+		"standout"	"1" if standout
 		"underline"	"1" if underlined
 		"undercurl"	"1" if undercurled
 
@@ -5391,6 +5640,20 @@ synIDtrans({synID})					*synIDtrans()*
 		{synID}.  This is the syntax group ID of what is being used to
 		highlight the character.  Highlight links given with
 		":highlight link" are followed.
+
+synconcealed({lnum}, {col})				*synconcealed()*
+		The result is a List. The first item in the list is 0 if the
+		character at the position {lnum} and {col} is not part of a
+		concealable region, 1 if it is. The second item in the list is
+		a string. If the first item is 1, the second item contains the
+		text which will be displayed in place of the concealed text,
+		depending on the current setting of 'conceallevel'. The third
+		and final item in the list is a unique number representing the
+		specific syntax region matched. This allows detection of the
+		beginning of a new concealable region if there are two
+		consecutive regions with the same replacement character.
+		For an example use see $VIMRUNTIME/syntax/2html.vim .
+
 
 synstack({lnum}, {col})					*synstack()*
 		Return a |List|, which is the stack of syntax items at the
@@ -5405,6 +5668,10 @@ synstack({lnum}, {col})					*synstack()*
 			for id in synstack(line("."), col("."))
 			   echo synIDattr(id, "name")
 			endfor
+<		When the position specified with {lnum} and {col} is invalid
+		nothing is returned.  The position just after the last
+		character in a line and the first column in an empty line are
+		valid positions.
 
 system({expr} [, {input}])				*system()* *E677*
 		Get the output of the shell command {expr}.
@@ -5466,7 +5733,7 @@ tabpagenr([{arg}])					*tabpagenr()*
 
 
 tabpagewinnr({tabarg}, [{arg}])				*tabpagewinnr()*
-		Like |winnr()| but for tab page {arg}.
+		Like |winnr()| but for tab page {tabarg}.
 		{tabarg} specifies the number of tab page to be used.
 		{arg} is used like with |winnr()|:
 		- When omitted the current window number is returned.  This is
@@ -5530,6 +5797,31 @@ tempname()					*tempname()* *temp-file-name*
 		For MS-Windows forward slashes are used when the 'shellslash'
 		option is set or when 'shellcmdflag' starts with '-'.
 
+
+tan({expr})						*tan()*
+		Return the tangent of {expr}, measured in radians, as a |Float|
+		in the range [-inf, inf].
+		{expr} must evaluate to a |Float| or a |Number|.
+		Examples: >
+			:echo tan(10)
+<			0.648361 >
+			:echo tan(-4.01)
+<			-1.181502
+		{only available when compiled with the |+float| feature}
+
+
+tanh({expr})						*tanh()*
+		Return the hyperbolic tangent of {expr} as a |Float| in the
+		range [-1, 1].
+		{expr} must evaluate to a |Float| or a |Number|.
+		Examples: >
+			:echo tanh(0.5)
+<			0.462117 >
+			:echo tanh(-1)
+<			-0.761594
+		{only available when compiled with the |+float| feature}
+
+
 tolower({expr})						*tolower()*
 		The result is a copy of the String given, with all uppercase
 		characters turned into lowercase (just like applying |gu| to
@@ -5582,6 +5874,60 @@ type({expr})	The result is a Number, depending on the type of {expr}:
 			:if type(myvar) == type([])
 			:if type(myvar) == type({})
 			:if type(myvar) == type(0.0)
+
+undofile({name})					*undofile()*
+		Return the name of the undo file that would be used for a file
+		with name {name} when writing.  This uses the 'undodir'
+		option, finding directories that exist.  It does not check if
+		the undo file exists.
+		{name} is always expanded to the full path, since that is what
+		is used internally.
+		Useful in combination with |:wundo| and |:rundo|.
+		When compiled without the +persistent_undo option this always
+		returns an empty string.
+
+undotree()						*undotree()*
+		Return the current state of the undo tree in a dictionary with
+		the following items:
+		  "seq_last"	The highest undo sequence number used.
+		  "seq_cur"	The sequence number of the current position in
+				the undo tree.  This differs from "seq_last"
+				when some changes were undone.
+		  "time_cur"	Time last used for |:earlier| and related
+				commands.  Use |strftime()| to convert to
+				something readable.
+		  "save_last"	Number of the last file write.  Zero when no
+				write yet.
+		  "save_cur"	Number of the current position in the undo
+				tree.  
+		  "synced"	Non-zero when the last undo block was synced.
+				This happens when waiting from input from the
+				user.  See |undo-blocks|.
+		  "entries"	A list of dictionaries with information about
+				undo blocks.
+
+		The first item in the "entries" list is the oldest undo item.
+		Each List item is a Dictionary with these items:
+		  "seq"		Undo sequence number.  Same as what appears in
+				|:undolist|.
+		  "time"	Timestamp when the change happened.  Use
+				|strftime()| to convert to something readable.
+		  "newhead"	Only appears in the item that is the last one
+				that was added.  This marks the last change
+				and where further changes will be added.
+		  "curhead"	Only appears in the item that is the last one
+				that was undone.  This marks the current
+				position in the undo tree, the block that will
+				be used by a redo command.  When nothing was
+				undone after the last change this item will
+				not appear anywhere.
+		  "save"	Only appears on the last block before a file
+				write.  The number is the write count.  The
+				first write has number 1, the last one the
+				"save_last" mentioned above.
+		  "alt"		Alternate entry.  This is again a List of undo
+				blocks.  Each item may again have an "alt"
+				item.
 
 values({dict})						*values()*
 		Return a |List| with all the values of {dict}.	The |List| is
@@ -5790,17 +6136,17 @@ cmdline_compl		Compiled with |cmdline-completion| support.
 cmdline_hist		Compiled with |cmdline-history| support.
 cmdline_info		Compiled with 'showcmd' and 'ruler' support.
 comments		Compiled with |'comments'| support.
+compatible		Compiled to be very Vi compatible.
 cryptv			Compiled with encryption support |encryption|.
 cscope			Compiled with |cscope| support.
-compatible		Compiled to be very Vi compatible.
 debug			Compiled with "DEBUG" defined.
 dialog_con		Compiled with console dialog support.
 dialog_gui		Compiled with GUI dialog support.
 diff			Compiled with |vimdiff| and 'diff' support.
 digraphs		Compiled with support for digraphs.
 dnd			Compiled with support for the "~ register |quote_~|.
-dos32			32 bits DOS (DJGPP) version of Vim.
 dos16			16 bits DOS version of Vim.
+dos32			32 bits DOS (DJGPP) version of Vim.
 ebcdic			Compiled on a machine with ebcdic character set.
 emacs_tags		Compiled with support for Emacs tags.
 eval			Compiled with expression evaluation support.  Always
@@ -5823,15 +6169,15 @@ fork			Compiled to use fork()/exec() instead of system().
 gettext			Compiled with message translation |multi-lang|
 gui			Compiled with GUI enabled.
 gui_athena		Compiled with Athena GUI.
+gui_gnome		Compiled with Gnome support (gui_gtk is also defined).
 gui_gtk			Compiled with GTK+ GUI (any version).
 gui_gtk2		Compiled with GTK+ 2 GUI (gui_gtk is also defined).
-gui_gnome		Compiled with Gnome support (gui_gtk is also defined).
 gui_mac			Compiled with Macintosh GUI.
 gui_motif		Compiled with Motif GUI.
 gui_photon		Compiled with Photon GUI.
+gui_running		Vim is running in the GUI, or it will start soon.
 gui_win32		Compiled with MS Windows Win32 GUI.
 gui_win32s		idem, and Win32s system being used (Windows 3.1)
-gui_running		Vim is running in the GUI, or it will start soon.
 hangul_input		Compiled with Hangul input support. |hangul|
 iconv			Can use iconv() for conversion.
 insert_expand		Compiled with support for CTRL-X expansion commands in
@@ -5846,31 +6192,33 @@ lispindent		Compiled with support for lisp indenting.
 listcmds		Compiled with commands for the buffer list |:files|
 			and the argument list |arglist|.
 localmap		Compiled with local mappings and abbr. |:map-local|
+lua			Compiled with Lua interface |Lua|.
 mac			Macintosh version of Vim.
 macunix			Macintosh version of Vim, using Unix files (OS-X).
 menu			Compiled with support for |:menu|.
 mksession		Compiled with support for |:mksession|.
 modify_fname		Compiled with file name modifiers. |filename-modifiers|
 mouse			Compiled with support mouse.
-mouseshape		Compiled with support for 'mouseshape'.
 mouse_dec		Compiled with support for Dec terminal mouse.
 mouse_gpm		Compiled with support for gpm (Linux console mouse)
 mouse_netterm		Compiled with support for netterm mouse.
 mouse_pterm		Compiled with support for qnx pterm mouse.
 mouse_sysmouse		Compiled with support for sysmouse (*BSD console mouse)
 mouse_xterm		Compiled with support for xterm mouse.
+mouseshape		Compiled with support for 'mouseshape'.
 multi_byte		Compiled with support for 'encoding'
 multi_byte_encoding	'encoding' is set to a multi-byte encoding.
 multi_byte_ime		Compiled with support for IME input method.
 multi_lang		Compiled with support for multiple languages.
 mzscheme		Compiled with MzScheme interface |mzscheme|.
+netbeans_enabled	Compiled with support for |netbeans| and connected.
 netbeans_intg		Compiled with support for |netbeans|.
-netbeans_enabled	Compiled with support for |netbeans| and it's used.
 ole			Compiled with OLE automation support for Win32.
 os2			OS/2 version of Vim.
 osfiletype		Compiled with support for osfiletypes |+osfiletype|
 path_extra		Compiled with up/downwards search in 'path' and 'tags'
 perl			Compiled with Perl interface.
+persistent_undo		Compiled with support for persistent undo history.
 postscript		Compiled with PostScript file printing.
 printer			Compiled with |:hardcopy| support.
 profile			Compiled with |:profile| support.
@@ -5885,11 +6233,11 @@ showcmd			Compiled with 'showcmd' support.
 signs			Compiled with |:sign| support.
 smartindent		Compiled with 'smartindent' support.
 sniff			Compiled with SNiFF interface support.
+spell			Compiled with spell checking support |spell|.
 startuptime		Compiled with |--startuptime| support.
 statusline		Compiled with support for 'statusline', 'rulerformat'
 			and special formats of 'titlestring' and 'iconstring'.
 sun_workshop		Compiled with support for Sun |workshop|.
-spell			Compiled with spell checking support |spell|.
 syntax			Compiled with syntax highlighting support |syntax|.
 syntax_items		There are active syntax highlighting items for the
 			current buffer.
@@ -5910,9 +6258,9 @@ title			Compiled with window title support |'title'|.
 toolbar			Compiled with support for |gui-toolbar|.
 unix			Unix version of Vim.
 user_commands		User-defined commands.
-viminfo			Compiled with viminfo support.
-vim_starting		True while initial source'ing takes place.
 vertsplit		Compiled with vertically split windows |:vsplit|.
+vim_starting		True while initial source'ing takes place. |startup|
+viminfo			Compiled with viminfo support.
 virtualedit		Compiled with 'virtualedit' option.
 visual			Compiled with Visual mode.
 visualextra		Compiled with extra Visual mode commands.
@@ -5921,13 +6269,14 @@ vms			VMS version of Vim.
 vreplace		Compiled with |gR| and |gr| commands.
 wildignore		Compiled with 'wildignore' option.
 wildmenu		Compiled with 'wildmenu' option.
-windows			Compiled with support for more than one window.
-winaltkeys		Compiled with 'winaltkeys' option.
 win16			Win16 version of Vim (MS-Windows 3.1).
-win32			Win32 version of Vim (MS-Windows 95/98/ME/NT/2000/XP).
-win64			Win64 version of Vim (MS-Windows 64 bit).
+win32			Win32 version of Vim (MS-Windows 95 and later, 32 or
+			64 bits)
 win32unix		Win32 version of Vim, using Unix files (Cygwin)
+win64			Win64 version of Vim (MS-Windows 64 bit).
 win95			Win32 version for MS-Windows 95/98/ME.
+winaltkeys		Compiled with 'winaltkeys' option.
+windows			Compiled with support for more than one window.
 writebackup		Compiled with 'writebackup' default on.
 xfontset		Compiled with X fontset support |xfontset|.
 xim			Compiled with X input method support |xim|.
@@ -6436,7 +6785,8 @@ This would call the function "my_func_whizz(parameter)".
 :let [{name}, ..., ; {lastname}] -= {expr1}
 			Like above, but append/add/subtract the value for each
 			|List| item.
-							*E106*
+
+								*E121*
 :let {var-name}	..	List the value of variable {var-name}.	Multiple
 			variable names may be given.  Special names recognized
 			here:				*E738*
@@ -6722,7 +7072,9 @@ This would call the function "my_func_whizz(parameter)".
 			is terminated.
 			Example: >
 		:try | throw "oops" | catch /^oo/ | echo "caught" | endtry
-<
+<			Note that "catch" may need to be on a separate line
+			for when an error causes the parsing to skip the whole
+			line and not see the "|" that separates the commands.
 
 							*:ec* *:echo*
 :ec[ho] {expr1} ..	Echoes each {expr1}, with a space in between.  The
@@ -6807,14 +7159,16 @@ This would call the function "my_func_whizz(parameter)".
 <
 							*:exe* *:execute*
 :exe[cute] {expr1} ..	Executes the string that results from the evaluation
-			of {expr1} as an Ex command.  Multiple arguments are
-			concatenated, with a space in between.	{expr1} is
-			used as the processed command, command line editing
-			keys are not recognized.
+			of {expr1} as an Ex command.
+			Multiple arguments are concatenated, with a space in
+			between.  To avoid the extra space use the "."
+			operator to concatenate strings into one argument.
+			{expr1} is used as the processed command, command line
+			editing keys are not recognized.
 			Cannot be followed by a comment.
 			Examples: >
-		:execute "buffer " nextbuf
-		:execute "normal " count . "w"
+		:execute "buffer" nextbuf
+		:execute "normal" count . "w"
 <
 			":execute" can be used to append a command to commands
 			that don't accept a '|'.  Example: >
@@ -7962,11 +8316,11 @@ missing: >
 ==============================================================================
 11. The sandbox					*eval-sandbox* *sandbox* *E48*
 
-The 'foldexpr', 'includeexpr', 'indentexpr', 'statusline' and 'foldtext'
-options are evaluated in a sandbox.  This means that you are protected from
-these expressions having nasty side effects.  This gives some safety for when
-these options are set from a modeline.	It is also used when the command from
-a tags file is executed and for CTRL-R = in the command line.
+The 'foldexpr', 'formatexpr', 'includeexpr', 'indentexpr', 'statusline' and
+'foldtext' options may be evaluated in a sandbox.  This means that you are
+protected from these expressions having nasty side effects.  This gives some
+safety for when these options are set from a modeline.  It is also used when
+the command from a tags file is executed and for CTRL-R = in the command line.
 The sandbox is also used for the |:sandbox| command.
 
 These items are not allowed in the sandbox:

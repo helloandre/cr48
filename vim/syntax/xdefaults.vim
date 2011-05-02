@@ -76,7 +76,7 @@ syn region	xdefaultsIncluded	contained start=+"+ skip=+\\\\\|\\"+ end=+"+
 syn match	xdefaultsIncluded	contained "<[^>]*>"
 syn match	xdefaultsInclude	"^\s*#\s*include\>\s*["<]" contains=xdefaultsIncluded
 syn cluster	xdefaultsPreProcGroup	contains=xdefaultsPreProc,xdefaultsIncluded,xdefaultsInclude,xdefaultsDefine
-syn region	xdefaultsDefine		start="^\s*#\s*\(define\|undef\)\>" skip="\\$" end="$" contains=ALLBUT,@xdefaultsPreProcGroup,xdefaultsCommentH,xdefaultsErrorLine,xdefaultsCppOut2
+syn region	xdefaultsDefine		start="^\s*#\s*\(define\|undef\)\>" skip="\\$" end="$" contains=ALLBUT,@xdefaultsPreProcGroup,xdefaultsCommentH,xdefaultsErrorLine
 syn region	xdefaultsPreProc	start="^\s*#\s*\(pragma\>\|line\>\|warning\>\|warn\>\|error\>\)" skip="\\$" end="$" keepend contains=ALLBUT,@xdefaultsPreProcGroup,xdefaultsCommentH,xdefaultsErrorLine
 
 

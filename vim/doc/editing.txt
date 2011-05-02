@@ -1,4 +1,4 @@
-*editing.txt*   For Vim version 7.2.  Last change: 2009 Jun 10
+*editing.txt*   For Vim version 7.3.  Last change: 2011 Feb 26
 
 
 		  VIM REFERENCE MANUAL    by Bram Moolenaar
@@ -276,10 +276,11 @@ If you want to keep the changed buffer without saving it, switch on the
 			'readonly' option for this buffer.  {not in Vi}
 
 							*CTRL-^* *CTRL-6*
-CTRL-^			Edit the alternate file (equivalent to ":e #").
-			Mostly the alternate file is the previously edited
-			file.  This is a quick way to toggle between two
-			files.
+CTRL-^			Edit the alternate file.  Mostly the alternate file is
+			the previously edited file.  This is a quick way to
+			toggle between two files.  It is equivalent to ":e #",
+			except that it also works when there is no file name.
+
 			If the 'autowrite' or 'autowriteall' option is on and
 			the buffer was changed, write it.
 			Mostly the ^ character is positioned on the 6 key,
@@ -782,7 +783,7 @@ fourth file in the argument list.  This happens when you do ":e file".
 LOCAL ARGUMENT LIST
 
 {not in Vi}
-{not available when compiled without the |+windows| or |+listcmds| feature}
+{not available when compiled without the |+windows| or |+listcmds| features}
 
 							*:arglocal*
 :argl[ocal]		Make a local copy of the global argument list.
@@ -984,6 +985,11 @@ explanation of when the copy is made and when the file is renamed.
 If the creation of a backup file fails, the write is not done.  If you want
 to write anyway add a '!' to the command.
 
+							*write-permissions*
+When writing a new file the permissions are read-write.  For unix the mask is
+0666 with additionally umask applied.  When writing a file that was read Vim
+will preserve the permissions, but clear the s-bit.
+
 							*write-readonly*
 When the 'cpoptions' option contains 'W', Vim will refuse to overwrite a
 readonly file.  When 'W' is not present, ":w!" will overwrite a readonly file,
@@ -1171,14 +1177,21 @@ If you want to always use ":confirm", set the 'confirm' option.
 			*:browse* *:bro* *E338* *E614* *E615* *E616* *E578*
 :bro[wse] {command}	Open a file selection dialog for an argument to
 			{command}.  At present this works for |:e|, |:w|,
-			|:r|, |:saveas|, |:sp|, |:mkexrc|, |:mkvimrc|,
-			|:mksession|, |:split|, |:vsplit|, and |:tabe|.
+			|:wall|, |:wq|, |:wqall|, |:x|, |:xall|, |:exit|,
+			|:view|, |:sview|, |:r|, |:saveas|, |:sp|, |:mkexrc|,
+			|:mkvimrc|, |:mksession|, |:mkview|, |:split|,
+			|:vsplit|, |:tabe|, |:tabnew|, |:cfile|, |:cgetfile|,
+			|:caddfile|, |:lfile|, |:lgetfile|, |:laddfile|,
+			|:diffsplit|, |:diffpatch|, |:open|, |:pedit|,
+			|:redir|, |:source|, |:update|, |:visual|, |:vsplit|,
+			and |:qall| if 'confirm' is set.
 			{only in Win32, Athena, Motif, GTK and Mac GUI}
 			When ":browse" is not possible you get an error
 			message.  If the |+browse| feature is missing or the
 			{command} doesn't support browsing, the {command} is
 			executed without a dialog.
 			":browse set" works like |:options|.
+			See also |:oldfiles| for ":browse oldfiles".
 
 The syntax is best shown via some examples: >
 	:browse e $vim/foo
@@ -1331,11 +1344,14 @@ There are a few things to remember when editing binary files:
 
 Vim is able to write files encrypted, and read them back.  The encrypted text
 cannot be read without the right key.
+{only available when compiled with the |+cryptv| feature}  *E833*
 
-Note: The swapfile and text in memory is not encrypted.  A system
-administrator will be able to see your text while you are editing it.
-When filtering text with ":!filter" or using ":w !command" the text is not
-encrypted, this may reveal it to others.
+The text in the swap file and the undo file is also encrypted.  *E843*
+
+Note: The text in memory is not encrypted.  A system administrator may be able
+to see your text while you are editing it.  When filtering text with
+":!filter" or using ":w !command" the text is not encrypted, this may reveal
+it to others.  The 'viminfo' file is not encrypted.
 
 WARNING: If you make a typo when entering the key and then write the file and
 exit, the text will be lost!
@@ -1361,10 +1377,38 @@ the file is encrypted.
 To disable the encryption, reset the 'key' option to an empty value: >
 	:set key=
 
-When reading a file that has been encrypted and this option is not empty, it
-will be used for decryption.  If the value is empty, you will be prompted to
-enter the key.  If you don't enter a key, the file is edited without being
-decrypted.
+You can use the 'cryptmethod' option to select the type of encryption, use one
+of these two: >
+	:setlocal cm=zip       " weak method, backwards compatible
+	:setlocal cm=blowfish  " strong method
+Do this before writing the file.  When reading an encrypted file it will be
+set automatically to the method used when that file was written.  You can
+change 'cryptmethod' before writing that file to change the method.
+To set the default method, used for new files, use one of these in your
+|vimrc| file: >
+	set cm=zip
+	set cm=blowfish
+The message given for reading and writing a file will show "[crypted]" when
+using zip, "[blowfish]" when using blowfish.
+
+When writing an undo file, the same key and method will be used for the text
+in the undo file. |persistent-undo|.
+
+						*E817* *E818* *E819* *E820*
+When encryption does not work properly, you would be able to write your text
+to a file and never be able to read it back.  Therefore a test is performed to
+check if the encryption works as expected.  If you get one of these errors
+don't write the file encrypted!  You need to rebuild the Vim binary to fix
+this.
+
+*E831* This is an internal error, "cannot happen".  If you can reproduce it,
+please report to the developers.
+
+When reading a file that has been encrypted and the 'key' option is not empty,
+it will be used for decryption.  If the value is empty, you will be prompted
+to enter the key.  If you don't enter a key, or you enter the wrong key, the
+file is edited without being decrypted.  There is no warning about using the
+wrong key (this makes brute force methods to find the key more difficult).
 
 If want to start reading a file that uses a different key, set the 'key'
 option to an empty string, so that Vim will prompt for a new one.  Don't use
@@ -1374,10 +1418,13 @@ your shoulder.
 Since the value of the 'key' option is supposed to be a secret, its value can
 never be viewed.  You should not set this option in a vimrc file.
 
-An encrypted file can be recognized by the "file" command, if you add this
-line to "/etc/magic", "/usr/share/misc/magic" or wherever your system has the
+An encrypted file can be recognized by the "file" command, if you add these
+lines to "/etc/magic", "/usr/share/misc/magic" or wherever your system has the
 "magic" file: >
      0	string	VimCrypt~	Vim encrypted file
+     >9	string	01	- "zip" cryptmethod
+     >9	string	02	- "blowfish" cryptmethod
+
 
 Notes:
 - Encryption is not possible when doing conversion with 'charconvert'.
@@ -1392,13 +1439,15 @@ Notes:
   history, showing the 'key' value in a viminfo file.
 - There is never 100% safety.  The encryption in Vim has not been tested for
   robustness.
-- The algorithm used is breakable.  A 4 character key in about one hour, a 6
-  character key in one day (on a Pentium 133 PC).  This requires that you know
-  some text that must appear in the file.  An expert can break it for any key.
-  When the text has been decrypted, this also means that the key can be
-  revealed, and other files encrypted with the same key can be decrypted.
-- Pkzip uses the same encryption, and US Govt has no objection to its export.
-  Pkzip's public file APPNOTE.TXT describes this algorithm in detail.
+- The algorithm used for 'cryptmethod' "zip" is breakable.  A 4 character key
+  in about one hour, a 6 character key in one day (on a Pentium 133 PC).  This
+  requires that you know some text that must appear in the file.  An expert
+  can break it for any key.  When the text has been decrypted, this also means
+  that the key can be revealed, and other files encrypted with the same key
+  can be decrypted.
+- Pkzip uses the same encryption as 'cryptmethod' "zip", and US Govt has no
+  objection to its export.  Pkzip's public file APPNOTE.TXT describes this
+  algorithm in detail.
 - Vim originates from the Netherlands.  That is where the sources come from.
   Thus the encryption code is not exported from the USA.
 
@@ -1583,10 +1632,13 @@ There are three different types of searching:
 
    In the above example you might want to set path to: >
 	:set path=**,/u/user_x/**
-<   This searches: >
-	/u/user_x/work/release/**
-	/u/user_x/**
-<   This searches the same directories, but in a different order.
+<  This searches:
+	/u/user_x/work/release/** ~
+	/u/user_x/** ~
+   This searches the same directories, but in a different order.
 
+   Note that completion for ":find", ":sfind", and ":tabfind" commands do not
+   currently work with 'path' items that contain a url or use the double star
+   (/usr/**2) or upward search (;) notations. >
 
  vim:tw=78:ts=8:ft=help:norl:

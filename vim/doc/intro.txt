@@ -1,4 +1,4 @@
-*intro.txt*     For Vim version 7.2.  Last change: 2009 Apr 21
+*intro.txt*     For Vim version 7.3.  Last change: 2010 Dec 08
 
 
 		  VIM REFERENCE MANUAL    by Bram Moolenaar
@@ -194,6 +194,7 @@ patches, suggestions and giving feedback about what is good and bad in Vim.
 Vim would never have become what it is now, without the help of these people!
 
 	Ron Aaron		Win32 GUI changes
+	Mohsin Ahmed		encryption
 	Zoltan Arpadffy		work on VMS port
 	Tony Andrews		Stevie
 	Gert van Antwerpen	changes for DJGPP on MS-DOS
@@ -226,13 +227,13 @@ Vim would never have become what it is now, without the help of these people!
 	David Leonard		Port of Python extensions to Unix
 	Avner Lottem		Edit in right-to-left windows
 	Flemming Madsen		X11 client-server, various features and patches
-	Microsoft		Gave me a copy of DevStudio to compile Vim with
+	Tony Mechelynck		answers many user questions
 	Paul Moore		Python interface extensions, many patches
 	Katsuhito Nagano	Work on multi-byte versions
 	Sung-Hyun Nam		Work on multi-byte versions
 	Vince Negri		Win32 GUI and generic console enhancements
 	Steve Oualline		Author of the first Vim book |frombook|
-	Dominique Pelle		figuring out valgrind reports and fixes
+	Dominique Pelle		valgrind reports and many fixes
 	A.Politz		Many bug reports and some fixes
 	George V. Reilly	Win32 port, Win32 GUI start-off
 	Stephen Riehm		bug collector
@@ -299,7 +300,7 @@ and <> are part of what you type, the context should make this clear.
 
 []		Characters in square brackets are optional.
 
-						    *count* *[count]* *E489*
+						    *count* *[count]*
 [count]		An optional number that may precede the command to multiply
 		or iterate the command.  If no number is given, a count of one
 		is used, unless otherwise noted.  Note that in this manual the
@@ -615,7 +616,6 @@ Replace		 <Esc>	  --	  --	<Insert>	      --      --
 Command-line	 *3	  --	  --	 :start	    --		      --
 Ex		 :vi	  --	  --	 --	    --	      --
 
--  NA
 -- not possible
 
 *1 Go from Normal mode to Insert mode by giving the command "i", "I", "a",
@@ -702,7 +702,7 @@ Lines longer than the window width will wrap, unless the 'wrap' option is off
 (see below).  The 'linebreak' option can be set to wrap at a blank character.
 
 If the window has room after the last line of the buffer, Vim will show '~' in
-the first column of the last lines in the window, like this: >
+the first column of the last lines in the window, like this:
 
 	+-----------------------+
 	|some line		|
@@ -714,7 +714,7 @@ the first column of the last lines in the window, like this: >
 Thus the '~' lines indicate that the end of the buffer was reached.
 
 If the last line in a window doesn't fit, Vim will indicate this with a '@' in
-the first column of the last lines in the window, like this: >
+the first column of the last lines in the window, like this:
 
 	+-----------------------+
 	|first line		|
@@ -729,7 +729,7 @@ window.
 When the "lastline" flag is present in the 'display' option, you will not see
 '@' characters at the left side of window.  If the last line doesn't fit
 completely, only the part that fits is shown, and the last three characters of
-the last line are replaced with "@@@", like this: >
+the last line are replaced with "@@@", like this:
 
 	+-----------------------+
 	|first line		|

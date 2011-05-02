@@ -1,4 +1,4 @@
-*map.txt*       For Vim version 7.2.  Last change: 2009 Nov 04
+*map.txt*       For Vim version 7.3.  Last change: 2011 Apr 13
 
 
 		  VIM REFERENCE MANUAL    by Bram Moolenaar
@@ -594,7 +594,7 @@ otherwise you would not be able to use those commands anymore.  Here are a few
 suggestions:
 - Function keys <F2>, <F3>, etc..  Also the shifted function keys <S-F1>,
   <S-F2>, etc.  Note that <F1> is already used for the help command.
-- Meta-keys (with the ALT key pressed).  Depending on your keybord accented
+- Meta-keys (with the ALT key pressed).  Depending on your keyboard accented
   characters may be used as well. |:map-alt-keys|
 - Use the '_' or ',' character and then any other character.  The "_" and ","
   commands do exist in Vim (see |_| and |,|), but you probably never use them.
@@ -767,10 +767,10 @@ g@{motion}		Call the function set by the 'operatorfunc' option.
 			The function is called with one String argument:
 			    "line"	{motion} was |linewise|
 			    "char"	{motion} was |characterwise|
-			    "block"	{motion} was |blockwise-visual||
+			    "block"	{motion} was |blockwise-visual|
 			Although "block" would rarely appear, since it can
 			only result from Visual mode where "g@" is not useful.
-			{not available when compiled without the +eval
+			{not available when compiled without the |+eval|
 			feature}
 
 Here is an example that counts the number of spaces with <F4>: >
@@ -1080,7 +1080,7 @@ to find out what they are defined to.
 The |:scriptnames| command can be used to see which scripts have been sourced
 and what their <SNR> number is.
 
-This is all {not in Vi} and {not available when compiled without the +eval
+This is all {not in Vi} and {not available when compiled without the |+eval|
 feature}.
 
 ==============================================================================
@@ -1093,16 +1093,20 @@ is executed, it is transformed into a normal Ex command and then executed.
 
 For starters: See section |40.2| in the user manual.
 
-						*E183* *user-cmd-ambiguous*
+					*E183* *E841* *user-cmd-ambiguous*
 All user defined commands must start with an uppercase letter, to avoid
-confusion with builtin commands.  (There are a few builtin commands, notably
-:Next, :Print and :X, which do start with an uppercase letter.  The builtin
-will always take precedence in these cases).  The other characters of the user
-command can be uppercase letters, lowercase letters or digits.  When using
-digits, note that other commands that take a numeric argument may become
-ambiguous.  For example, the command ":Cc2" could be the user command ":Cc2"
-without an argument, or the command ":Cc" with argument "2".  It is advised to
-put a space between the command name and the argument to avoid these problems.
+confusion with builtin commands.  Exceptions are these builtin commands:
+	:Next
+	:X
+They cannot be used for a user defined command.  ":Print" is also an existing
+command, but it is deprecated and can be overruled.
+
+The other characters of the user command can be uppercase letters, lowercase
+letters or digits.  When using digits, note that other commands that take a
+numeric argument may become ambiguous.  For example, the command ":Cc2" could
+be the user command ":Cc2" without an argument, or the command ":Cc" with
+argument "2".  It is advised to put a space between the command name and the
+argument to avoid these problems.
 
 When using a user-defined command, the command can be abbreviated.  However, if
 an abbreviation is not unique, an error will be issued.  Furthermore, a
@@ -1203,18 +1207,22 @@ completion can be enabled:
 	-complete=augroup	autocmd groups
 	-complete=buffer	buffer names
 	-complete=command	Ex command (and arguments)
+	-complete=cscope	|:cscope| suboptions
 	-complete=dir		directory names
 	-complete=environment	environment variable names
 	-complete=event		autocommand events
 	-complete=expression	Vim expression
 	-complete=file		file and directory names
-	-complete=shellcmd	Shell command
+	-complete=filetype	filetype names |'filetype'|
 	-complete=function	function name
 	-complete=help		help subjects
 	-complete=highlight	highlight groups
 	-complete=mapping	mapping name
 	-complete=menu		menus
 	-complete=option	options
+	-complete=shellcmd	Shell command
+	-complete=sign		|:sign| suboptions
+	-complete=syntax	syntax file names |'syntax'|
 	-complete=tag		tags
 	-complete=tag_listfiles	tags, file names are shown when CTRL-D is hit
 	-complete=var		user variables
@@ -1266,6 +1274,8 @@ the 'path' option: >
     :    return split(globpath(&path, a:A), "\n")
     :endfun
 <
+This example does not work for file names with spaces!
+
 
 Range handling				*E177* *E178* *:command-range*
 							*:command-count*
@@ -1281,7 +1291,8 @@ Possible attributes are:
 	-range	    Range allowed, default is current line
 	-range=%    Range allowed, default is whole file (1,$)
 	-range=N    A count (default N) which is specified in the line
-		    number position (like |:split|)
+		    number position (like |:split|); allows for zero line
+		    number.
 	-count=N    A count (default N) which is specified either in the line
 		    number position, or as an initial argument (like |:Next|).
 		    Specifying -count (without a default) acts like -count=0
