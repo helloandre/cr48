@@ -1,14 +1,10 @@
 " Vim syntax file
-" Language:	Debian control files
+" Language:    Debian control files
 " Maintainer:  Debian Vim Maintainers <pkg-vim-maintainers@lists.alioth.debian.org>
 " Former Maintainers: Gerfried Fuchs <alfie@ist.org>
 "                     Wichert Akkerman <wakkerma@debian.org>
-" Last Change: 2009 Aug 17
-" URL: http://git.debian.org/?p=pkg-vim/vim.git;a=blob_plain;f=runtime/ftplugin/debcontrol.vim;hb=debian
-
-" Comments are very welcome - but please make sure that you are commenting on
-" the latest version of this file.
-" SPAM is _NOT_ welcome - be ready to be reported!
+" Last Change: 2010 Oct 21
+" URL: http://hg.debian.org/hg/pkg-vim/vim/raw-file/unstable/runtime/syntax/debcontrol.vim
 
 " Standard syntax initialization
 if version < 600

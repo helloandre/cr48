@@ -1,4 +1,4 @@
-*ft_ada.txt*	For Vim version 7.2.  Last change: 2008 Jun 21
+*ft_ada.txt*	For Vim version 7.3.  Last change: 2010 Jul 20
 
 
 		    ADA FILE TYPE PLUG-INS REFERENCE MANUAL~
@@ -6,20 +6,20 @@
 ADA								      *ada.vim*
 
 1.  Syntax Highlighting			    |ft-ada-syntax|
-2.  Plug-in				    |ft-ada-plugin|
+2.  File type Plug-in			    |ft-ada-plugin|
 3.  Omni Completion			    |ft-ada-omni|
     3.1 Omni Completion with "gnat xref"	|gnat-xref|
     3.2 Omni Completion with "ctags"		|ada-ctags|
 4.  Compiler Support			    |ada-compiler|
     4.1 GNAT					|compiler-gnat|
-    4.1 Dec Ada					|compiler-decada|
+    4.2 Dec Ada					|compiler-decada|
 5.  References				    |ada-reference|
     5.1 Options					|ft-ada-options|
-    5.2 Functions				|ft-ada-functions|
-    5.3 Commands				|ft-ada-commands|
-    5.4 Variables				|ft-ada-variables|
-    5.5 Constants				|ft-ada-constants|
-8.  Extra Plug-ins			    |ada-extra-plugins|
+    5.2 Commands				|ft-ada-commands|
+    5.3 Variables				|ft-ada-variables|
+    5.4 Constants				|ft-ada-constants|
+    5.5 Functions				|ft-ada-functions|
+6.  Extra Plug-ins			    |ada-extra-plugins|
 
 ==============================================================================
 1. Syntax Highlighting ~
@@ -45,7 +45,7 @@ to change how loops are displayed, enter the command ":hi Repeat" followed by
 the colour specification; on simple terminals the colour specification
 ctermfg=White often shows well).
 
-There are several options you can select in this Ada mode. See|ft-ada-options|
+There are several options you can select in this Ada mode. See |ft-ada-options|
 for a complete list.
 
 To enable them, assign a value to the option.  For example, to turn one on:
@@ -139,11 +139,11 @@ The Ada parser for Exuberant Ctags is fairly new - don't expect complete
 support yet.
 
 ==============================================================================
-4.  Compiler Support ~
+4. Compiler Support ~
 								*ada-compiler*
 
 The Ada mode supports more than one Ada compiler and will automatically load the
-compiler set in|g:ada_default_compiler|whenever an Ada source is opened. The
+compiler set in |g:ada_default_compiler| whenever an Ada source is opened. The
 provided compiler plug-ins are split into the actual compiler plug-in and a
 collection of support functions and variables. This allows the easy
 development of specialized compiler plug-ins fine tuned to your development
@@ -171,20 +171,20 @@ GNAT OBJECT ~
 
 							       *g:gnat.Make()*
 g:gnat.Make()
-		Calls|g:gnat.Make_Command|and displays the result inside a
+		Calls |g:gnat.Make_Command| and displays the result inside a
                |quickfix| window.
 
 							     *g:gnat.Pretty()*
 g:gnat.Pretty()
-		Calls|g:gnat.Pretty_Command|
+		Calls |g:gnat.Pretty_Program|
 
 							       *g:gnat.Find()*
 g:gnat.Find()
-		Calls|g:gnat.Find_Command|
+		Calls |g:gnat.Find_Program|
 
 							       *g:gnat.Tags()*
 g:gnat.Tags()
-		Calls|g:gnat.Tags_Command|
+		Calls |g:gnat.Tags_Command|
 
 						   *g:gnat.Set_Project_File()*
 g:gnat.Set_Project_File([{file}])
@@ -200,19 +200,19 @@ g:gnat.Project_File	string
 
 							 *g:gnat.Make_Command*
 g:gnat.Make_Command	string
-		External command used for|g:gnat.Make()| (|'makeprg'|).
+		External command used for |g:gnat.Make()| (|'makeprg'|).
 
 						       *g:gnat.Pretty_Program*
 g:gnat.Pretty_Program	string
-		External command used for|g:gnat.Pretty()|
+		External command used for |g:gnat.Pretty()|
 
 							 *g:gnat.Find_Program*
 g:gnat.Find_Program	string
-		External command used for|g:gnat.Find()|
+		External command used for |g:gnat.Find()|
 
 							 *g:gnat.Tags_Command*
 g:gnat.Tags_Command	string
-		External command used for|g:gnat.Tags()|
+		External command used for |g:gnat.Tags()|
 
 							 *g:gnat.Error_Format*
 g:gnat.Error_Format	string
@@ -237,8 +237,8 @@ DEC ADA OBJECT ~
 
 							     *g:decada.Make()*
 g:decada.Make()		function
-		Calls|g:decada.Make_Command|and displays the result inside a
-               |quickfix| window.
+		Calls |g:decada.Make_Command| and displays the result inside a
+		|quickfix| window.
 
 							*g:decada.Unit_Name()*
 g:decada.Unit_Name()	function
@@ -246,7 +246,7 @@ g:decada.Unit_Name()	function
 
 						       *g:decada.Make_Command*
 g:decada.Make_Command	string
-		External command used for|g:decadat.Make()| (|'makeprg'|).
+		External command used for |g:decada.Make()| (|'makeprg'|).
 
 						       *g:decada.Error_Format*
 g:decada.Error_Format|	string
@@ -367,7 +367,7 @@ false when the variable is undefined. The value to which the variable is set
 makes no difference.
 
 ------------------------------------------------------------------------------
-5.3 Commands ~
+5.2 Commands ~
 							     *ft-ada-commands*
 
 :AdaRainbow							 *:AdaRainbow*
@@ -406,15 +406,15 @@ makes no difference.
 g:gnat			    object
 		Control object which manages GNAT compiles.  The object
 		is created when the first Ada source code is loaded provided
-		that |g:ada_default_compiler|is set to 'gnat'. See|gnat_members|
-		for details.
+		that |g:ada_default_compiler| is set to 'gnat'. See
+		|gnat_members| for details.
 
 								    *g:decada*
 g:decada		      object
 		Control object which manages Dec Ada compiles.	The object
 		is created when the first Ada source code is loaded provided
-		that |g:ada_default_compiler|is set to 'decada'. See
-	       |decada_members|for details.
+		that |g:ada_default_compiler| is set to 'decada'. See
+		|decada_members| for details.
 
 ------------------------------------------------------------------------------
 5.4 Constants ~
@@ -445,7 +445,7 @@ g:ada#Ctags_Kinds	dictionary of lists
 		for Ctags generates.
 
 ------------------------------------------------------------------------------
-5.2 Functions ~
+5.5 Functions ~
 							    *ft-ada-functions*
 
 ada#Word([{line}, {col}])					  *ada#Word()*
@@ -479,7 +479,7 @@ gnat#New ()
 
 
 ==============================================================================
-8. Extra Plugins ~
+6. Extra Plugins ~
 							   *ada-extra-plugins*
 
 You can optionally install the following extra plug-ins. They work well with

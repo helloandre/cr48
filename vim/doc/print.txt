@@ -1,4 +1,4 @@
-*print.txt*     For Vim version 7.2.  Last change: 2008 Dec 17
+*print.txt*     For Vim version 7.3.  Last change: 2010 Jul 20
 
 
 		  VIM REFERENCE MANUAL    by Bram Moolenaar
@@ -490,7 +490,7 @@ Traditional Chinese fonts available at:
 
 You can find descriptions of the various fonts in the read me file at
 
-  http://examples.oreilly.com/cjkvinfo/adobe/00README
+  http://examples.oreilly.de/english_examples/cjkvinfo/adobe/00README
 
 Please read your printer documentation on how to install new fonts.
 

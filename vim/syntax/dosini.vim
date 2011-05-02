@@ -19,7 +19,7 @@ syn case ignore
 
 syn match  dosiniLabel		"^.\{-}="
 syn region dosiniHeader		start="^\[" end="\]"
-syn match  dosiniComment	"^[;#].*$"
+syn match  dosiniComment	"^;.*$"
 
 " Define the default highlighting.
 " For version 5.7 and earlier: only when not done already

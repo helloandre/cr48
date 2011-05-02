@@ -1,4 +1,4 @@
-*quotes.txt*    For Vim version 7.2.  Last change: 2006 Apr 24
+*quotes.txt*    For Vim version 7.3.  Last change: 2010 Nov 03
 
 
 		  VIM REFERENCE MANUAL    by Bram Moolenaar
@@ -211,7 +211,7 @@ I cannot believe how great it is to use VIM.  I think the guys at work are
 getting tired of hearing me bragging about it.  Others eyes are lighting up.
 (Rick Croote)
 
-Emacs takes way to much time to start up and run, it is to big and bulky for
+Emacs takes way too much time to start up and run, it is too big and bulky for
 effective use and the interface is more confusing than it is of any help.  VIM
 however is short, it is fast, it is powerful, it has a good interface and it
 is all purpose.  (Paal Ditlefsen Ekran)
@@ -260,15 +260,16 @@ Eccettuato, Italy)
 
 
 In summary:
-     __     ___		    _	    _	_  ___ _____
-     \ \   / (_)_ __ ___   (_)___  | | | |/ _ \_   _|
-      \ \ / /| | '_ ` _ \  | / __| | |_| | | | || |
-       \ V / | | | | | | | | \__ \ |  _  | |_| || |
-	\_/  |_|_| |_| |_| |_|___/ |_| |_|\___/ |_|
-	     ____ _____ _   _ _____ _____ _ _
-	    / ___|_   _| | | |	___|  ___| | |
-	    \___ \ | | | | | | |_  | |_  | | |
-	     ___) || | | |_| |	_| |  _| |_|_|
-	    |____/ |_|	\___/|_|   |_|	 (_|_)	      (Tony Nugent, Australia)
+     __     ___		    _	    _	_  ___ _____ `
+     \ \   / (_)_ __ ___   (_)___  | | | |/ _ \_   _| `
+      \ \ / /| | '_ ` _ \  | / __| | |_| | | | || | `
+       \ V / | | | | | | | | \__ \ |  _  | |_| || | `
+	\_/  |_|_| |_| |_| |_|___/ |_| |_|\___/ |_| `
+	     ____ _____ _   _ _____ _____ _ _ `
+	    / ___|_   _| | | |	___|  ___| | | `
+	    \___ \ | | | | | | |_  | |_  | | | `
+	     ___) || | | |_| |	_| |  _| |_|_| `
+	    |____/ |_|	\___/|_|   |_|	 (_|_)	    (Tony Nugent, Australia) `
+
 
  vim:tw=78:ts=8:ft=help:norl:
