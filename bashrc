@@ -29,7 +29,10 @@ export PYTHONHOME=$PYTHONPATH
 export TERM=screen
 
 #make sure we can write to this bitch
-sudo mount -i -o remount,exec /home/chronos/user
+if mount | grep '/home/chronos/user.*noexec' > /dev/null
+then
+    sudo mount -i -o remount,exec /home/chronos/user
+fi
 
 #start dropbox if it's not running
 #for info on how to get dropbox running on ChromeOS go here: 
