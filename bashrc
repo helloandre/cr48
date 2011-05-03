@@ -25,7 +25,7 @@ alias ll='ls -lh'
 export PATH=$PATH:~/bin
 export VIMRUNTIME=/home/chronos/user/.vim/vim
 export PYTHONPATH=/home/chronos/user/lib/python2.6
-export PYTHONHOME=$PYTHONPATH
+export PYTHONHOME=/home/chronos/user
 export TERM=screen
 
 #make sure we can write to this bitch
