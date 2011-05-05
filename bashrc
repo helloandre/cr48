@@ -24,12 +24,15 @@ alias ll='ls -lh'
 #need to make sure things are where they should be
 export PATH=$PATH:~/bin
 export VIMRUNTIME=/home/chronos/user/.vim/vim
-export PYTHONPATH=/home/chronos/user
-export PYTHONHOME=$PYTHONPATH
+export PYTHONPATH=/home/chronos/user/lib/python2.6
+export PYTHONHOME=/home/chronos/user
 export TERM=screen
 
 #make sure we can write to this bitch
-sudo mount -i -o remount,exec /home/chronos/user
+if mount | grep '/home/chronos/user.*noexec' > /dev/null
+then
+    sudo mount -i -o remount,exec /home/chronos/user
+fi
 
 #start dropbox if it's not running
 #for info on how to get dropbox running on ChromeOS go here: 
