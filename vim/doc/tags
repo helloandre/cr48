@@ -4234,6 +4234,7 @@ E847	syntax.txt	/*E847*
 E848	syntax.txt	/*E848*
 E849	syntax.txt	/*E849*
 E85	options.txt	/*E85*
+E850	change.txt	/*E850*
 E86	windows.txt	/*E86*
 E87	windows.txt	/*E87*
 E88	windows.txt	/*E88*
@@ -6057,6 +6058,7 @@ hangul	hangulin.txt	/*hangul*
 hangulin.txt	hangulin.txt	/*hangulin.txt*
 has()	eval.txt	/*has()*
 has-patch	eval.txt	/*has-patch*
+has-python	if_pyth.txt	/*has-python*
 has_key()	eval.txt	/*has_key()*
 haskell.vim	syntax.txt	/*haskell.vim*
 haslocaldir()	eval.txt	/*haslocaldir()*
@@ -7277,17 +7279,6 @@ right-justify	change.txt	/*right-justify*
 rileft	rileft.txt	/*rileft*
 rileft.txt	rileft.txt	/*rileft.txt*
 riscos	os_risc.txt	/*riscos*
-riscos-commandline	os_risc.txt	/*riscos-commandline*
-riscos-filetypes	os_risc.txt	/*riscos-filetypes*
-riscos-gui	os_risc.txt	/*riscos-gui*
-riscos-interrupt	os_risc.txt	/*riscos-interrupt*
-riscos-locations	os_risc.txt	/*riscos-locations*
-riscos-memory	os_risc.txt	/*riscos-memory*
-riscos-munging	os_risc.txt	/*riscos-munging*
-riscos-porting	os_risc.txt	/*riscos-porting*
-riscos-remote	os_risc.txt	/*riscos-remote*
-riscos-shell	os_risc.txt	/*riscos-shell*
-riscos-temp-files	os_risc.txt	/*riscos-temp-files*
 rot13	change.txt	/*rot13*
 round()	eval.txt	/*round()*
 rsync	pi_netrw.txt	/*rsync*
