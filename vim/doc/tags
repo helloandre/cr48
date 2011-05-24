@@ -4304,6 +4304,7 @@ IME	mbyte.txt	/*IME*
 Insert	insert.txt	/*Insert*
 Insert-mode	insert.txt	/*Insert-mode*
 InsertChange	autocmd.txt	/*InsertChange*
+InsertCharPre	autocmd.txt	/*InsertCharPre*
 InsertEnter	autocmd.txt	/*InsertEnter*
 InsertLeave	autocmd.txt	/*InsertLeave*
 J	change.txt	/*J*
