@@ -1,1 +1,0 @@
-../../../../../share/pyshared/twisted/web/__init__.py

@@ -21,13 +21,13 @@
 
 # === Variables set by makesetup ===
 
-MODOBJS=          Modules/threadmodule.o  Modules/signalmodule.o  Modules/arraymodule.o  Modules/mathmodule.o  Modules/_struct.o  Modules/timemodule.o  Modules/operator.o  Modules/_weakref.o  Modules/_randommodule.o  Modules/_collectionsmodule.o  Modules/itertoolsmodule.o  Modules/stropmodule.o  Modules/_functoolsmodule.o  Modules/_bisectmodule.o  Modules/unicodedata.o  Modules/_localemodule.o  Modules/fcntlmodule.o  Modules/spwdmodule.o  Modules/grpmodule.o  Modules/selectmodule.o  Modules/socketmodule.o  Modules/_ssl.o  Modules/_hashopenssl.o  Modules/syslogmodule.o  Modules/binascii.o  Modules/cStringIO.o  Modules/cPickle.o  Modules/zlibmodule.o  Modules/posixmodule.o  Modules/errnomodule.o  Modules/pwdmodule.o  Modules/_sre.o  Modules/_codecsmodule.o  Modules/zipimport.o  Modules/symtablemodule.o  Modules/xxsubtype.o
+MODOBJS=          Modules/threadmodule.o  Modules/signalmodule.o  Modules/posixmodule.o  Modules/errnomodule.o  Modules/pwdmodule.o  Modules/_sre.o  Modules/_codecsmodule.o  Modules/zipimport.o  Modules/symtablemodule.o  Modules/arraymodule.o  Modules/cmathmodule.o  Modules/mathmodule.o  Modules/_struct.o  Modules/timemodule.o  Modules/operator.o  Modules/_weakref.o  Modules/_randommodule.o  Modules/_collectionsmodule.o  Modules/itertoolsmodule.o  Modules/stropmodule.o  Modules/_functoolsmodule.o  Modules/_elementtree.o  Modules/datetimemodule.o  Modules/_bisectmodule.o  Modules/unicodedata.o  Modules/socketmodule.o  Modules/_ssl.o  Modules/md5module.o Modules/md5.o  Modules/shamodule.o  Modules/sha256module.o  Modules/sha512module.o  Modules/binascii.o  Modules/xxsubtype.o
 MODLIBS=        $(LOCALMODLIBS) $(BASEMODLIBS)
 
 # === Variables set by configure
 VERSION=	2.6
-srcdir=		..
-VPATH=		..
+srcdir=		.
+
 
 CC=		gcc -pthread
 CXX=		g++ -pthread
@@ -35,7 +35,7 @@ MAINCC=		$(CC)
 LINKCC=		$(PURIFY) $(MAINCC)
 AR=		ar
 RANLIB=		ranlib
-SVNVERSION=	echo Unversioned directory
+SVNVERSION=	svnversion $(srcdir)
 
 # Shell used by make (some versions default to the login shell, which is bad)
 SHELL=		/bin/sh
@@ -56,20 +56,20 @@ INSTALL_SHARED= ${INSTALL} -m 555
 MAKESETUP=      $(srcdir)/Modules/makesetup
 
 # Compiler options
-OPT=		-DNDEBUG -g -fwrapv -O2 -Wall -Wstrict-prototypes
+OPT=		-DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes
 BASECFLAGS=	 -fno-strict-aliasing
 CFLAGS=		$(BASECFLAGS) -g -O2 $(OPT) $(EXTRA_CFLAGS)
 # Both CPPFLAGS and LDFLAGS need to contain the shell's value for setup.py to
 # be able to build extension modules using the directories specified in the
 # environment variables
 CPPFLAGS=	-I. -IInclude -I$(srcdir)/Include 
-LDFLAGS=	-Wl,-Bsymbolic-functions
+LDFLAGS=	
 LDLAST=		
 SGI_ABI=	
 CCSHARED=	-fPIC
-LINKFORSHARED=	-Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions
+LINKFORSHARED=	-Xlinker -export-dynamic
 # Extra C flags added for building the interpreter object files.
-CFLAGSFORSHARED=$(CCSHARED)
+CFLAGSFORSHARED=
 # C flags used for building the interpreter object files
 PY_CFLAGS=	$(CFLAGS) $(CPPFLAGS) $(CFLAGSFORSHARED) -DPy_BUILD_CORE
 
@@ -78,7 +78,7 @@ PY_CFLAGS=	$(CFLAGS) $(CPPFLAGS) $(CFLAGSFORSHARED) -DPy_BUILD_CORE
 MACHDEP=	linux2
 
 # Install prefix for architecture-independent files
-prefix=		/usr
+prefix=		/home/pcheah/local
 
 # Install prefix for architecture-dependent files
 exec_prefix=	${prefix}
@@ -97,21 +97,19 @@ SCRIPTDIR=	$(prefix)/lib
 # Detailed destination directories
 BINLIBDEST=	$(LIBDIR)/python$(VERSION)
 LIBDEST=	$(SCRIPTDIR)/python$(VERSION)
-INCLUDEPY=	$(INCLUDEDIR)/python$(VERSION)$(DEBUG_EXT)
-CONFINCLUDEPY=	$(CONFINCLUDEDIR)/python$(VERSION)$(DEBUG_EXT)
+INCLUDEPY=	$(INCLUDEDIR)/python$(VERSION)
+CONFINCLUDEPY=	$(CONFINCLUDEDIR)/python$(VERSION)
 LIBP=		$(LIBDIR)/python$(VERSION)
 
 # Symbols used for using shared libraries
 SO=		.so
-LDSHARED=	$(CC) -shared -Wl,-O1 -Wl,-Bsymbolic-functions
-BLDSHARED=	$(CC) -shared -Wl,-O1 -Wl,-Bsymbolic-functions
+LDSHARED=	$(CC) -shared
+BLDSHARED=	$(CC) -shared
 DESTSHARED=	$(BINLIBDEST)/lib-dynload
 
 # Executable suffix (.exe on Windows and Mac OS X)
 EXE=		
 BUILDEXE=	
-
-DEBUG_EXT=	
 
 # Short name and location for Mac OS X Python framework
 UNIVERSALSDK=
@@ -129,7 +127,7 @@ MACOSX_DEPLOYMENT_TARGET=
 OTHER_LIBTOOL_OPT=
 
 # Environment to run shared python without installed libraries
-RUNSHARED=
+RUNSHARED=       
 
 # Modes for directories, executables and data files created by the
 # install process.  Default to user-only-writable for all file types.
@@ -138,7 +136,7 @@ EXEMODE=	755
 FILEMODE=	644
 
 # configure script arguments
-CONFIG_ARGS=	 '--enable-shared' '--prefix=/usr' '--enable-ipv6' '--enable-unicode=ucs4' '--with-system-expat' '--with-system-ffi' '--with-fpectl' 'CC=gcc' 'CFLAGS=-g -O2' 'LDFLAGS=-Wl,-Bsymbolic-functions' 'CPPFLAGS='
+CONFIG_ARGS=	 '--prefix=/home/pcheah/local'
 
 
 # Subdirectories with code
@@ -154,12 +152,12 @@ DISTDIRS=	$(SUBDIRS) $(SUBDIRSTOO) Ext-dummy
 DIST=		$(DISTFILES) $(DISTDIRS)
 
 
-LIBRARY=	libpython$(VERSION)$(DEBUG_EXT).a
-LDLIBRARY=      libpython$(VERSION)$(DEBUG_EXT).so
-BLDLIBRARY=     -L. -lpython$(VERSION)$(DEBUG_EXT)
+LIBRARY=	libpython$(VERSION).a
+LDLIBRARY=      libpython$(VERSION).a
+BLDLIBRARY=     $(LDLIBRARY)
 DLLLIBRARY=	
 LDLIBRARYDIR=   
-INSTSONAME=	libpython$(VERSION)$(DEBUG_EXT).so.1.0
+INSTSONAME=	$(LDLIBRARY)
 
 
 LIBS=		-lpthread -ldl  -lutil
@@ -185,8 +183,9 @@ PROFILE_TASK=	$(srcdir)/Tools/pybench/pybench.py -n 2 --with-gc --with-syscheck
 
 # === Definitions added by makesetup ===
 
-LOCALMODLIBS=                       -lssl -lcrypto  -lssl -lcrypto      -L$(exec_prefix)/lib -lz        
+LOCALMODLIBS=                            -L$(SSL)/lib -lssl -lcrypto      
 BASEMODLIBS=
+SSL=/home/pcheah/local
 GLHACK=-Dclear=__GLclear
 PYTHONPATH=$(COREPYTHONPATH)
 COREPYTHONPATH=$(DESTPATH)$(SITEPATH)$(TESTPATH)$(MACHDEPPATH)$(EXTRAMACHDEPPATH)$(TKPATH)$(OLDPATH)
@@ -371,7 +370,7 @@ LIBRARY_OBJS=	\
 
 # Default target
 all:		build_all
-build_all:	$(BUILDPYTHON) oldsharedmods sharedmods gdbhooks
+build_all:	$(BUILDPYTHON) oldsharedmods sharedmods
 
 # Compile a binary with gcc profile guided optimization.
 profile-opt:
@@ -389,11 +388,9 @@ build_all_generate_profile:
 	$(MAKE) all CFLAGS="$(CFLAGS) -fprofile-generate" LIBS="$(LIBS) -lgcov"
 
 run_profile_task:
-	-./$(BUILDPYTHON) $(PROFILE_TASK)
+	./$(BUILDPYTHON) $(PROFILE_TASK)
 
 build_all_use_profile:
-	: # FIXME: gcc error
-	rm -f Python/thread.gc*
 	$(MAKE) all CFLAGS="$(CFLAGS) -fprofile-use"
 
 coverage:
@@ -431,7 +428,7 @@ $(LIBRARY): $(LIBRARY_OBJS)
 	$(AR) cr $@ $(MODOBJS)
 	$(RANLIB) $@
 
-libpython$(VERSION)$(DEBUG_EXT).so: $(LIBRARY_OBJS)
+libpython$(VERSION).so: $(LIBRARY_OBJS)
 	if test $(INSTSONAME) != $(LDLIBRARY); then \
 		$(LDSHARED) $(LDFLAGS) -Wl,-h$(INSTSONAME) -o $(INSTSONAME) $(LIBRARY_OBJS) $(MODLIBS) $(SHLIBS) $(LIBC) $(LIBM) $(LDLAST); \
 		$(LN) -f $(INSTSONAME) $@; \
@@ -445,16 +442,6 @@ libpython$(VERSION).dylib: $(LIBRARY_OBJS)
 
 libpython$(VERSION).sl: $(LIBRARY_OBJS)
 	$(LDSHARED) $(LDFLAGS) -o $@ $(LIBRARY_OBJS) $(MODLIBS) $(SHLIBS) $(LIBC) $(LIBM) $(LDLAST)
-
-# Copy up the gdb python hooks into a position where they can be automatically
-# loaded by gdb during Lib/test/test_gdb.py
-#
-# Distributors are likely to want to install this somewhere else e.g. relative
-# to the stripped DWARF data for the shared library.
-gdbhooks: $(BUILDPYTHON)-gdb.py
-
-$(BUILDPYTHON)-gdb.py: Tools/gdb/libpython.py
-	$(INSTALL_SCRIPT) $< $(BUILDPYTHON)-gdb.py
 
 # This rule is here for OPENSTEP/Rhapsody/MacOSX. It builds a temporary
 # minimal framework (not including the Lib directory and such) in the current
@@ -965,8 +952,8 @@ inclinstall:
 	$(INSTALL_DATA) pyconfig.h $(DESTDIR)$(CONFINCLUDEPY)/pyconfig.h
 
 # Install the library and miscellaneous stuff needed for extending/embedding
-# This goes into $(exec_prefix)$(DEBUG_EXT)
-LIBPL=		$(LIBP)/config$(DEBUG_EXT)
+# This goes into $(exec_prefix)
+LIBPL=		$(LIBP)/config
 libainstall:	all
 	@for i in $(LIBDIR) $(LIBP) $(LIBPL); \
 	do \
@@ -1247,7 +1234,6 @@ Python/thread.o:  $(srcdir)/Python/thread_atheos.h $(srcdir)/Python/thread_beos.
 .PHONY: frameworkinstallmaclib frameworkinstallapps frameworkinstallunixtools
 .PHONY: frameworkaltinstallunixtools recheck autoconf clean clobber distclean 
 .PHONY: smelly funny patchcheck
-.PHONY: gdbhooks
 
 # IF YOU PUT ANYTHING HERE IT WILL GO AWAY
 
@@ -1257,8 +1243,24 @@ Modules/threadmodule.o: $(srcdir)/Modules/threadmodule.c; $(CC) $(PY_CFLAGS)  -c
 Modules/threadmodule$(SO):  Modules/threadmodule.o; $(BLDSHARED)  Modules/threadmodule.o   -o Modules/threadmodule$(SO)
 Modules/signalmodule.o: $(srcdir)/Modules/signalmodule.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/signalmodule.c -o Modules/signalmodule.o
 Modules/signalmodule$(SO):  Modules/signalmodule.o; $(BLDSHARED)  Modules/signalmodule.o   -o Modules/signalmodule$(SO)
+Modules/posixmodule.o: $(srcdir)/Modules/posixmodule.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/posixmodule.c -o Modules/posixmodule.o
+Modules/posixmodule$(SO):  Modules/posixmodule.o; $(BLDSHARED)  Modules/posixmodule.o   -o Modules/posixmodule$(SO)
+Modules/errnomodule.o: $(srcdir)/Modules/errnomodule.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/errnomodule.c -o Modules/errnomodule.o
+Modules/errnomodule$(SO):  Modules/errnomodule.o; $(BLDSHARED)  Modules/errnomodule.o   -o Modules/errnomodule$(SO)
+Modules/pwdmodule.o: $(srcdir)/Modules/pwdmodule.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/pwdmodule.c -o Modules/pwdmodule.o
+Modules/pwdmodule$(SO):  Modules/pwdmodule.o; $(BLDSHARED)  Modules/pwdmodule.o   -o Modules/pwdmodule$(SO)
+Modules/_sre.o: $(srcdir)/Modules/_sre.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/_sre.c -o Modules/_sre.o
+Modules/_sre$(SO):  Modules/_sre.o; $(BLDSHARED)  Modules/_sre.o   -o Modules/_sre$(SO)
+Modules/_codecsmodule.o: $(srcdir)/Modules/_codecsmodule.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/_codecsmodule.c -o Modules/_codecsmodule.o
+Modules/_codecsmodule$(SO):  Modules/_codecsmodule.o; $(BLDSHARED)  Modules/_codecsmodule.o   -o Modules/_codecsmodule$(SO)
+Modules/zipimport.o: $(srcdir)/Modules/zipimport.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/zipimport.c -o Modules/zipimport.o
+Modules/zipimport$(SO):  Modules/zipimport.o; $(BLDSHARED)  Modules/zipimport.o   -o Modules/zipimport$(SO)
+Modules/symtablemodule.o: $(srcdir)/Modules/symtablemodule.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/symtablemodule.c -o Modules/symtablemodule.o
+Modules/_symtablemodule$(SO):  Modules/symtablemodule.o; $(BLDSHARED)  Modules/symtablemodule.o   -o Modules/_symtablemodule$(SO)
 Modules/arraymodule.o: $(srcdir)/Modules/arraymodule.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/arraymodule.c -o Modules/arraymodule.o
 Modules/arraymodule$(SO):  Modules/arraymodule.o; $(BLDSHARED)  Modules/arraymodule.o   -o Modules/arraymodule$(SO)
+Modules/cmathmodule.o: $(srcdir)/Modules/cmathmodule.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/cmathmodule.c -o Modules/cmathmodule.o
+Modules/cmathmodule$(SO):  Modules/cmathmodule.o; $(BLDSHARED)  Modules/cmathmodule.o   -o Modules/cmathmodule$(SO)
 Modules/mathmodule.o: $(srcdir)/Modules/mathmodule.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/mathmodule.c -o Modules/mathmodule.o
 Modules/mathmodule$(SO):  Modules/mathmodule.o; $(BLDSHARED)  Modules/mathmodule.o   -o Modules/mathmodule$(SO)
 Modules/_struct.o: $(srcdir)/Modules/_struct.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/_struct.c -o Modules/_struct.o
@@ -1279,49 +1281,28 @@ Modules/stropmodule.o: $(srcdir)/Modules/stropmodule.c; $(CC) $(PY_CFLAGS)  -c $
 Modules/stropmodule$(SO):  Modules/stropmodule.o; $(BLDSHARED)  Modules/stropmodule.o   -o Modules/stropmodule$(SO)
 Modules/_functoolsmodule.o: $(srcdir)/Modules/_functoolsmodule.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/_functoolsmodule.c -o Modules/_functoolsmodule.o
 Modules/_functoolsmodule$(SO):  Modules/_functoolsmodule.o; $(BLDSHARED)  Modules/_functoolsmodule.o   -o Modules/_functoolsmodule$(SO)
+Modules/_elementtree.o: $(srcdir)/Modules/_elementtree.c; $(CC) $(PY_CFLAGS)  -I$(srcdir)/Modules/expat -DHAVE_EXPAT_CONFIG_H -DUSE_PYEXPAT_CAPI -c $(srcdir)/Modules/_elementtree.c -o Modules/_elementtree.o
+Modules/_elementtree$(SO):  Modules/_elementtree.o; $(BLDSHARED)  Modules/_elementtree.o   -o Modules/_elementtree$(SO)
+Modules/datetimemodule.o: $(srcdir)/Modules/datetimemodule.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/datetimemodule.c -o Modules/datetimemodule.o
+Modules/datetimemodule$(SO):  Modules/datetimemodule.o; $(BLDSHARED)  Modules/datetimemodule.o   -o Modules/datetimemodule$(SO)
 Modules/_bisectmodule.o: $(srcdir)/Modules/_bisectmodule.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/_bisectmodule.c -o Modules/_bisectmodule.o
 Modules/_bisectmodule$(SO):  Modules/_bisectmodule.o; $(BLDSHARED)  Modules/_bisectmodule.o   -o Modules/_bisectmodule$(SO)
 Modules/unicodedata.o: $(srcdir)/Modules/unicodedata.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/unicodedata.c -o Modules/unicodedata.o
 Modules/unicodedata$(SO):  Modules/unicodedata.o; $(BLDSHARED)  Modules/unicodedata.o   -o Modules/unicodedata$(SO)
-Modules/_localemodule.o: $(srcdir)/Modules/_localemodule.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/_localemodule.c -o Modules/_localemodule.o
-Modules/_localemodule$(SO):  Modules/_localemodule.o; $(BLDSHARED)  Modules/_localemodule.o   -o Modules/_localemodule$(SO)
-Modules/fcntlmodule.o: $(srcdir)/Modules/fcntlmodule.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/fcntlmodule.c -o Modules/fcntlmodule.o
-Modules/fcntlmodule$(SO):  Modules/fcntlmodule.o; $(BLDSHARED)  Modules/fcntlmodule.o   -o Modules/fcntlmodule$(SO)
-Modules/spwdmodule.o: $(srcdir)/Modules/spwdmodule.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/spwdmodule.c -o Modules/spwdmodule.o
-Modules/spwdmodule$(SO):  Modules/spwdmodule.o; $(BLDSHARED)  Modules/spwdmodule.o   -o Modules/spwdmodule$(SO)
-Modules/grpmodule.o: $(srcdir)/Modules/grpmodule.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/grpmodule.c -o Modules/grpmodule.o
-Modules/grpmodule$(SO):  Modules/grpmodule.o; $(BLDSHARED)  Modules/grpmodule.o   -o Modules/grpmodule$(SO)
-Modules/selectmodule.o: $(srcdir)/Modules/selectmodule.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/selectmodule.c -o Modules/selectmodule.o
-Modules/selectmodule$(SO):  Modules/selectmodule.o; $(BLDSHARED)  Modules/selectmodule.o   -o Modules/selectmodule$(SO)
 Modules/socketmodule.o: $(srcdir)/Modules/socketmodule.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/socketmodule.c -o Modules/socketmodule.o
 Modules/_socketmodule$(SO):  Modules/socketmodule.o; $(BLDSHARED)  Modules/socketmodule.o   -o Modules/_socketmodule$(SO)
-Modules/_ssl.o: $(srcdir)/Modules/_ssl.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/_ssl.c -o Modules/_ssl.o
-Modules/_ssl$(SO):  Modules/_ssl.o; $(BLDSHARED)  Modules/_ssl.o  -lssl -lcrypto  -o Modules/_ssl$(SO)
-Modules/_hashopenssl.o: $(srcdir)/Modules/_hashopenssl.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/_hashopenssl.c -o Modules/_hashopenssl.o
-Modules/_hashlibmodule$(SO):  Modules/_hashopenssl.o; $(BLDSHARED)  Modules/_hashopenssl.o  -lssl -lcrypto  -o Modules/_hashlibmodule$(SO)
-Modules/syslogmodule.o: $(srcdir)/Modules/syslogmodule.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/syslogmodule.c -o Modules/syslogmodule.o
-Modules/syslogmodule$(SO):  Modules/syslogmodule.o; $(BLDSHARED)  Modules/syslogmodule.o   -o Modules/syslogmodule$(SO)
+Modules/_ssl.o: $(srcdir)/Modules/_ssl.c; $(CC) $(PY_CFLAGS)  -DUSE_SSL -I$(SSL)/include -I$(SSL)/include/openssl -c $(srcdir)/Modules/_ssl.c -o Modules/_ssl.o
+Modules/_ssl$(SO):  Modules/_ssl.o; $(BLDSHARED)  Modules/_ssl.o  -L$(SSL)/lib -lssl -lcrypto  -o Modules/_ssl$(SO)
+Modules/md5module.o: $(srcdir)/Modules/md5module.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/md5module.c -o Modules/md5module.o
+Modules/md5.o: $(srcdir)/Modules/md5.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/md5.c -o Modules/md5.o
+Modules/_md5module$(SO):  Modules/md5module.o Modules/md5.o; $(BLDSHARED)  Modules/md5module.o Modules/md5.o   -o Modules/_md5module$(SO)
+Modules/shamodule.o: $(srcdir)/Modules/shamodule.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/shamodule.c -o Modules/shamodule.o
+Modules/_shamodule$(SO):  Modules/shamodule.o; $(BLDSHARED)  Modules/shamodule.o   -o Modules/_shamodule$(SO)
+Modules/sha256module.o: $(srcdir)/Modules/sha256module.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/sha256module.c -o Modules/sha256module.o
+Modules/_sha256module$(SO):  Modules/sha256module.o; $(BLDSHARED)  Modules/sha256module.o   -o Modules/_sha256module$(SO)
+Modules/sha512module.o: $(srcdir)/Modules/sha512module.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/sha512module.c -o Modules/sha512module.o
+Modules/_sha512module$(SO):  Modules/sha512module.o; $(BLDSHARED)  Modules/sha512module.o   -o Modules/_sha512module$(SO)
 Modules/binascii.o: $(srcdir)/Modules/binascii.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/binascii.c -o Modules/binascii.o
 Modules/binascii$(SO):  Modules/binascii.o; $(BLDSHARED)  Modules/binascii.o   -o Modules/binascii$(SO)
-Modules/cStringIO.o: $(srcdir)/Modules/cStringIO.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/cStringIO.c -o Modules/cStringIO.o
-Modules/cStringIO$(SO):  Modules/cStringIO.o; $(BLDSHARED)  Modules/cStringIO.o   -o Modules/cStringIO$(SO)
-Modules/cPickle.o: $(srcdir)/Modules/cPickle.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/cPickle.c -o Modules/cPickle.o
-Modules/cPickle$(SO):  Modules/cPickle.o; $(BLDSHARED)  Modules/cPickle.o   -o Modules/cPickle$(SO)
-Modules/zlibmodule.o: $(srcdir)/Modules/zlibmodule.c; $(CC) $(PY_CFLAGS)  -I$(prefix)/include -c $(srcdir)/Modules/zlibmodule.c -o Modules/zlibmodule.o
-Modules/zlibmodule$(SO):  Modules/zlibmodule.o; $(BLDSHARED)  Modules/zlibmodule.o  -L$(exec_prefix)/lib -lz  -o Modules/zlibmodule$(SO)
-Modules/posixmodule.o: $(srcdir)/Modules/posixmodule.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/posixmodule.c -o Modules/posixmodule.o
-Modules/posixmodule$(SO):  Modules/posixmodule.o; $(BLDSHARED)  Modules/posixmodule.o   -o Modules/posixmodule$(SO)
-Modules/errnomodule.o: $(srcdir)/Modules/errnomodule.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/errnomodule.c -o Modules/errnomodule.o
-Modules/errnomodule$(SO):  Modules/errnomodule.o; $(BLDSHARED)  Modules/errnomodule.o   -o Modules/errnomodule$(SO)
-Modules/pwdmodule.o: $(srcdir)/Modules/pwdmodule.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/pwdmodule.c -o Modules/pwdmodule.o
-Modules/pwdmodule$(SO):  Modules/pwdmodule.o; $(BLDSHARED)  Modules/pwdmodule.o   -o Modules/pwdmodule$(SO)
-Modules/_sre.o: $(srcdir)/Modules/_sre.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/_sre.c -o Modules/_sre.o
-Modules/_sre$(SO):  Modules/_sre.o; $(BLDSHARED)  Modules/_sre.o   -o Modules/_sre$(SO)
-Modules/_codecsmodule.o: $(srcdir)/Modules/_codecsmodule.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/_codecsmodule.c -o Modules/_codecsmodule.o
-Modules/_codecsmodule$(SO):  Modules/_codecsmodule.o; $(BLDSHARED)  Modules/_codecsmodule.o   -o Modules/_codecsmodule$(SO)
-Modules/zipimport.o: $(srcdir)/Modules/zipimport.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/zipimport.c -o Modules/zipimport.o
-Modules/zipimport$(SO):  Modules/zipimport.o; $(BLDSHARED)  Modules/zipimport.o   -o Modules/zipimport$(SO)
-Modules/symtablemodule.o: $(srcdir)/Modules/symtablemodule.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/symtablemodule.c -o Modules/symtablemodule.o
-Modules/_symtablemodule$(SO):  Modules/symtablemodule.o; $(BLDSHARED)  Modules/symtablemodule.o   -o Modules/_symtablemodule$(SO)
 Modules/xxsubtype.o: $(srcdir)/Modules/xxsubtype.c; $(CC) $(PY_CFLAGS)  -c $(srcdir)/Modules/xxsubtype.c -o Modules/xxsubtype.o
 Modules/xxsubtype$(SO):  Modules/xxsubtype.o; $(BLDSHARED)  Modules/xxsubtype.o   -o Modules/xxsubtype$(SO)

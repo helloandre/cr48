@@ -1,1 +1,0 @@
-../../../../share/pyshared/NvidiaDetector/alternatives.py

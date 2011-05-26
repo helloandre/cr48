@@ -1,1 +1,0 @@
-/usr/share/pyshared/checkbox/attribute.py

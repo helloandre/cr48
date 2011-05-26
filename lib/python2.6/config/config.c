@@ -1,4 +1,4 @@
-/* Generated automatically from ../Modules/config.c.in by makesetup. */
+/* Generated automatically from ./Modules/config.c.in by makesetup. */
 /* -*- C -*- ***********************************************
 Copyright (c) 2000, BeOpen.com.
 Copyright (c) 1995-2000, Corporation for National Research Initiatives.
@@ -25,7 +25,15 @@ extern "C" {
 
 extern void initthread(void);
 extern void initsignal(void);
+extern void initposix(void);
+extern void initerrno(void);
+extern void initpwd(void);
+extern void init_sre(void);
+extern void init_codecs(void);
+extern void initzipimport(void);
+extern void init_symtable(void);
 extern void initarray(void);
+extern void initcmath(void);
 extern void initmath(void);
 extern void init_struct(void);
 extern void inittime(void);
@@ -36,28 +44,17 @@ extern void init_collections(void);
 extern void inititertools(void);
 extern void initstrop(void);
 extern void init_functools(void);
+extern void init_elementtree(void);
+extern void initdatetime(void);
 extern void init_bisect(void);
 extern void initunicodedata(void);
-extern void init_locale(void);
-extern void initfcntl(void);
-extern void initspwd(void);
-extern void initgrp(void);
-extern void initselect(void);
 extern void init_socket(void);
 extern void init_ssl(void);
-extern void init_hashlib(void);
-extern void initsyslog(void);
+extern void init_md5(void);
+extern void init_sha(void);
+extern void init_sha256(void);
+extern void init_sha512(void);
 extern void initbinascii(void);
-extern void initcStringIO(void);
-extern void initcPickle(void);
-extern void initzlib(void);
-extern void initposix(void);
-extern void initerrno(void);
-extern void initpwd(void);
-extern void init_sre(void);
-extern void init_codecs(void);
-extern void initzipimport(void);
-extern void init_symtable(void);
 extern void initxxsubtype(void);
 
 /* -- ADDMODULE MARKER 1 -- */
@@ -72,7 +69,15 @@ struct _inittab _PyImport_Inittab[] = {
 
 	{"thread", initthread},
 	{"signal", initsignal},
+	{"posix", initposix},
+	{"errno", initerrno},
+	{"pwd", initpwd},
+	{"_sre", init_sre},
+	{"_codecs", init_codecs},
+	{"zipimport", initzipimport},
+	{"_symtable", init_symtable},
 	{"array", initarray},
+	{"cmath", initcmath},
 	{"math", initmath},
 	{"_struct", init_struct},
 	{"time", inittime},
@@ -83,28 +88,17 @@ struct _inittab _PyImport_Inittab[] = {
 	{"itertools", inititertools},
 	{"strop", initstrop},
 	{"_functools", init_functools},
+	{"_elementtree", init_elementtree},
+	{"datetime", initdatetime},
 	{"_bisect", init_bisect},
 	{"unicodedata", initunicodedata},
-	{"_locale", init_locale},
-	{"fcntl", initfcntl},
-	{"spwd", initspwd},
-	{"grp", initgrp},
-	{"select", initselect},
 	{"_socket", init_socket},
 	{"_ssl", init_ssl},
-	{"_hashlib", init_hashlib},
-	{"syslog", initsyslog},
+	{"_md5", init_md5},
+	{"_sha", init_sha},
+	{"_sha256", init_sha256},
+	{"_sha512", init_sha512},
 	{"binascii", initbinascii},
-	{"cStringIO", initcStringIO},
-	{"cPickle", initcPickle},
-	{"zlib", initzlib},
-	{"posix", initposix},
-	{"errno", initerrno},
-	{"pwd", initpwd},
-	{"_sre", init_sre},
-	{"_codecs", init_codecs},
-	{"zipimport", initzipimport},
-	{"_symtable", init_symtable},
 	{"xxsubtype", initxxsubtype},
 
 /* -- ADDMODULE MARKER 2 -- */

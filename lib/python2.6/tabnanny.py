@@ -1,4 +1,4 @@
-#! /usr/bin/python2.6
+#! /usr/bin/env python
 
 """The Tab Nanny despises ambiguous indentation.  She knows no mercy.
 

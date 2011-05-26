@@ -1,1 +1,0 @@
-/usr/share/pyshared/configglue/inischema/typed.py

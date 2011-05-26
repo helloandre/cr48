@@ -1,1 +1,0 @@
-../../../../../share/pyshared/twisted/tap/__init__.py

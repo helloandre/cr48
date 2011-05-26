@@ -1,1 +1,0 @@
-../../../../../../share/pyshared/twisted/trial/test/test_doctest.py

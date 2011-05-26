@@ -1,1 +1,0 @@
-/usr/share/pyshared/Crypto/PublicKey/qNEW.py

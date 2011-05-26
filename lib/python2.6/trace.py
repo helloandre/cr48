@@ -1,4 +1,4 @@
-#! /usr/bin/python2.6
+#!/usr/bin/env python
 
 # portions copyright 2001, Autonomous Zones Industries, Inc., all rights...
 # err...  reserved and offered to the public under the terms of the

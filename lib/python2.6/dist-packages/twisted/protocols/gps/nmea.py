@@ -1,1 +1,0 @@
-../../../../../../share/pyshared/twisted/protocols/gps/nmea.py

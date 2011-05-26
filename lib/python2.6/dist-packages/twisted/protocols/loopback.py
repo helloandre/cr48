@@ -1,1 +1,0 @@
-../../../../../share/pyshared/twisted/protocols/loopback.py

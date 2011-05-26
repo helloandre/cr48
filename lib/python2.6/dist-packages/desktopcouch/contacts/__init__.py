@@ -1,1 +1,0 @@
-/usr/share/pyshared/desktopcouch/contacts/__init__.py

@@ -1,1 +1,0 @@
-/usr/share/pyshared/butterfly/channel/__init__.py

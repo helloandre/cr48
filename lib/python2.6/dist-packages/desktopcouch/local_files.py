@@ -1,1 +1,0 @@
-/usr/share/pyshared/desktopcouch/local_files.py

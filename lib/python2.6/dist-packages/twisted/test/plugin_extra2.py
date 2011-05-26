@@ -1,1 +1,0 @@
-../../../../../share/pyshared/twisted/test/plugin_extra2.py

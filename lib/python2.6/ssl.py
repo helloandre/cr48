@@ -182,14 +182,14 @@ class SSLSocket(socket):
                 else:
                     return v
         else:
-            return self._sock.send(data, flags)
+            return socket.send(self, data, flags)
 
     def sendto(self, data, addr, flags=0):
         if self._sslobj:
             raise ValueError("sendto not allowed on instances of %s" %
                              self.__class__)
         else:
-            return self._sock.sendto(data, flags, addr)
+            return socket.sendto(self, data, addr, flags)
 
     def sendall(self, data, flags=0):
         if self._sslobj:
@@ -214,7 +214,7 @@ class SSLSocket(socket):
                     self.__class__)
             return self.read(buflen)
         else:
-            return self._sock.recv(buflen, flags)
+            return socket.recv(self, buflen, flags)
 
     def recv_into(self, buffer, nbytes=None, flags=0):
         if buffer and (nbytes is None):
@@ -231,21 +231,21 @@ class SSLSocket(socket):
             buffer[:v] = tmp_buffer
             return v
         else:
-            return self._sock.recv_into(buffer, nbytes, flags)
+            return socket.recv_into(self, buffer, nbytes, flags)
 
     def recvfrom(self, addr, buflen=1024, flags=0):
         if self._sslobj:
             raise ValueError("recvfrom not allowed on instances of %s" %
                              self.__class__)
         else:
-            return self._sock.recvfrom(buflen, flags)
+            return socket.recvfrom(self, addr, buflen, flags)
 
     def recvfrom_into(self, buffer, nbytes=None, flags=0):
         if self._sslobj:
             raise ValueError("recvfrom_into not allowed on instances of %s" %
                              self.__class__)
         else:
-            return self._sock.recvfrom_into(buffer, nbytes, flags)
+            return socket.recvfrom_into(self, buffer, nbytes, flags)
 
     def pending(self):
         if self._sslobj:
