@@ -53,6 +53,8 @@ do
 		verbosity="$verbosity -v" ;;
 	--progress)
 		progress=--progress ;;
+	--no-progress)
+		progress=--no-progress ;;
 	-n|--no-stat|--no-summary)
 		diffstat=--no-stat ;;
 	--stat|--summary)
@@ -108,13 +110,16 @@ do
 	--recurse-submodules)
 		recurse_submodules=--recurse-submodules
 		;;
+	--recurse-submodules=*)
+		recurse_submodules="$1"
+		;;
 	--no-recurse-submodules)
 		recurse_submodules=--no-recurse-submodules
 		;;
 	--d|--dr|--dry|--dry-|--dry-r|--dry-ru|--dry-run)
 		dry_run=--dry-run
 		;;
-	-h|--h|--he|--hel|--help)
+	-h|--h|--he|--hel|--help|--help-|--help-a|--help-al|--help-all)
 		usage
 		;;
 	*)
@@ -272,7 +277,7 @@ esac
 if test -z "$orig_head"
 then
 	git update-ref -m "initial pull" HEAD $merge_head "$curr_head" &&
-	git read-tree --reset -u HEAD || exit 1
+	git read-tree -m -u HEAD || exit 1
 	exit
 fi
 
@@ -293,8 +298,8 @@ true)
 	;;
 *)
 	eval="git-merge $diffstat $no_commit $squash $no_ff $ff_only"
-	eval="$eval  $log_arg $strategy_args $merge_args"
-	eval="$eval \"\$merge_name\" HEAD $merge_head $verbosity"
+	eval="$eval  $log_arg $strategy_args $merge_args $verbosity $progress"
+	eval="$eval \"\$merge_name\" HEAD $merge_head"
 	;;
 esac
 eval "exec $eval"

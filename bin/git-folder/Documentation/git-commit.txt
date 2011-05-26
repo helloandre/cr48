@@ -84,9 +84,10 @@ OPTIONS
 	linkgit:git-rebase[1] for details.
 
 --reset-author::
-	When used with -C/-c/--amend options, declare that the
-	authorship of the resulting commit now belongs of the committer.
-	This also renews the author timestamp.
+	When used with -C/-c/--amend options, or when committing after a
+	a conflicting cherry-pick, declare that the authorship of the
+	resulting commit now belongs of the committer. This also renews
+	the author timestamp.
 
 --short::
 	When doing a dry-run, give the output in the short-format. See
@@ -214,10 +215,11 @@ FROM UPSTREAM REBASE" section in linkgit:git-rebase[1].)
 
 -u[<mode>]::
 --untracked-files[=<mode>]::
-	Show untracked files (Default: 'all').
+	Show untracked files.
 +
-The mode parameter is optional, and is used to specify
-the handling of untracked files.
+The mode parameter is optional (defaults to 'all'), and is used to
+specify the handling of untracked files; when -u is not used, the
+default is 'normal', i.e. show untracked files and directories.
 +
 The possible options are:
 +
@@ -225,9 +227,8 @@ The possible options are:
 	- 'normal' - Shows untracked files and directories
 	- 'all'    - Also shows individual files in untracked directories.
 +
-See linkgit:git-config[1] for configuration variable
-used to change the default for when the option is not
-specified.
+The default can be changed using the status.showUntrackedFiles
+configuration variable documented in linkgit:git-config[1].
 
 -v::
 --verbose::
@@ -395,12 +396,6 @@ linkgit:git-rm[1],
 linkgit:git-mv[1],
 linkgit:git-merge[1],
 linkgit:git-commit-tree[1]
-
-Author
-------
-Written by Linus Torvalds <torvalds@osdl.org> and
-Junio C Hamano <gitster@pobox.com>
-
 
 GIT
 ---

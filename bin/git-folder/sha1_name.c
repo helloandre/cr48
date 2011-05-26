@@ -208,9 +208,7 @@ const char *find_unique_abbrev(const unsigned char *sha1, int len)
 		if (exists
 		    ? !status
 		    : status == SHORT_NAME_NOT_FOUND) {
-			int cut_at = len + unique_abbrev_extra_length;
-			cut_at = (cut_at < 40) ? cut_at : 40;
-			hex[cut_at] = 0;
+			hex[len] = 0;
 			return hex;
 		}
 		len++;
@@ -1014,11 +1012,13 @@ static void diagnose_invalid_sha1_path(const char *prefix,
 		if (!get_tree_entry(tree_sha1, fullname,
 				    sha1, &mode)) {
 			die("Path '%s' exists, but not '%s'.\n"
-			    "Did you mean '%s:%s'?",
+			    "Did you mean '%s:%s' aka '%s:./%s'?",
 			    fullname,
 			    filename,
 			    object_name,
-			    fullname);
+			    fullname,
+			    object_name,
+			    filename);
 		}
 		die("Path '%s' does not exist in '%s'",
 		    filename, object_name);
@@ -1067,9 +1067,10 @@ static void diagnose_invalid_index_path(int stage,
 		if (ce_namelen(ce) == fullnamelen &&
 		    !memcmp(ce->name, fullname, fullnamelen))
 			die("Path '%s' is in the index, but not '%s'.\n"
-			    "Did you mean ':%d:%s'?",
+			    "Did you mean ':%d:%s' aka ':%d:./%s'?",
 			    fullname, filename,
-			    ce_stage(ce), fullname);
+			    ce_stage(ce), fullname,
+			    ce_stage(ce), filename);
 	}
 
 	if (!lstat(filename, &st))

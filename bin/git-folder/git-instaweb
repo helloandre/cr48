@@ -35,8 +35,8 @@ conf="$GIT_DIR/gitweb/httpd.conf"
 # if installed, it doesn't need further configuration (module_path)
 test -z "$httpd" && httpd='lighttpd -f'
 
-# Default is /home/andre/share/gitweb
-test -z "$root" && root='/home/andre/share/gitweb'
+# Default is /home/pcheah/local/share/gitweb
+test -z "$root" && root='/home/pcheah/local/share/gitweb'
 
 # any untaken local port will do...
 test -z "$port" && port=1234
@@ -558,12 +558,14 @@ my \$app = builder {
 
 # make it runnable as standalone app,
 # like it would be run via 'plackup' utility
-if (__FILE__ eq \$0) {
+if (caller) {
+	return \$app;
+} else {
 	require Plack::Runner;
 
 	my \$runner = Plack::Runner->new();
 	\$runner->parse_options(qw(--env deployment --port $port),
-			       "$local" ? qw(--host 127.0.0.1) : ());
+				"$local" ? qw(--host 127.0.0.1) : ());
 	\$runner->run(\$app);
 }
 __END__

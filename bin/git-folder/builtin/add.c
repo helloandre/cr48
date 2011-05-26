@@ -21,11 +21,31 @@ static const char * const builtin_add_usage[] = {
 static int patch_interactive, add_interactive, edit_interactive;
 static int take_worktree_changes;
 
-struct update_callback_data
-{
+struct update_callback_data {
 	int flags;
 	int add_errors;
 };
+
+static int fix_unmerged_status(struct diff_filepair *p,
+			       struct update_callback_data *data)
+{
+	if (p->status != DIFF_STATUS_UNMERGED)
+		return p->status;
+	if (!(data->flags & ADD_CACHE_IGNORE_REMOVAL) && !p->two->mode)
+		/*
+		 * This is not an explicit add request, and the
+		 * path is missing from the working tree (deleted)
+		 */
+		return DIFF_STATUS_DELETED;
+	else
+		/*
+		 * Either an explicit add request, or path exists
+		 * in the working tree.  An attempt to explicitly
+		 * add a path that does not exist in the working tree
+		 * will be caught as an error by the caller immediately.
+		 */
+		return DIFF_STATUS_MODIFIED;
+}
 
 static void update_callback(struct diff_queue_struct *q,
 			    struct diff_options *opt, void *cbdata)
@@ -36,35 +56,14 @@ static void update_callback(struct diff_queue_struct *q,
 	for (i = 0; i < q->nr; i++) {
 		struct diff_filepair *p = q->queue[i];
 		const char *path = p->one->path;
-		switch (p->status) {
+		switch (fix_unmerged_status(p, data)) {
 		default:
-			die("unexpected diff status %c", p->status);
-		case DIFF_STATUS_UNMERGED:
-			/*
-			 * ADD_CACHE_IGNORE_REMOVAL is unset if "git
-			 * add -u" is calling us, In such a case, a
-			 * missing work tree file needs to be removed
-			 * if there is an unmerged entry at stage #2,
-			 * but such a diff record is followed by
-			 * another with DIFF_STATUS_DELETED (and if
-			 * there is no stage #2, we won't see DELETED
-			 * nor MODIFIED).  We can simply continue
-			 * either way.
-			 */
-			if (!(data->flags & ADD_CACHE_IGNORE_REMOVAL))
-				continue;
-			/*
-			 * Otherwise, it is "git add path" is asking
-			 * to explicitly add it; we fall through.  A
-			 * missing work tree file is an error and is
-			 * caught by add_file_to_index() in such a
-			 * case.
-			 */
+			die(_("unexpected diff status %c"), p->status);
 		case DIFF_STATUS_MODIFIED:
 		case DIFF_STATUS_TYPE_CHANGED:
 			if (add_file_to_index(&the_index, path, data->flags)) {
 				if (!(data->flags & ADD_CACHE_IGNORE_ERRORS))
-					die("updating files failed");
+					die(_("updating files failed"));
 				data->add_errors++;
 			}
 			break;
@@ -74,7 +73,7 @@ static void update_callback(struct diff_queue_struct *q,
 			if (!(data->flags & ADD_CACHE_PRETEND))
 				remove_file_from_index(&the_index, path);
 			if (data->flags & (ADD_CACHE_PRETEND|ADD_CACHE_VERBOSE))
-				printf("remove '%s'\n", path);
+				printf(_("remove '%s'\n"), path);
 			break;
 		}
 	}
@@ -86,12 +85,13 @@ int add_files_to_cache(const char *prefix, const char **pathspec, int flags)
 	struct rev_info rev;
 	init_revisions(&rev, prefix);
 	setup_revisions(0, NULL, &rev, NULL);
-	rev.prune_data = pathspec;
+	init_pathspec(&rev.prune_data, pathspec);
 	rev.diffopt.output_format = DIFF_FORMAT_CALLBACK;
 	rev.diffopt.format_callback = update_callback;
 	data.flags = flags;
 	data.add_errors = 0;
 	rev.diffopt.format_callback_data = &data;
+	rev.max_count = 0; /* do not compare unmerged paths with stage #2 */
 	run_diff_files(&rev, DIFF_RACY_IS_MODIFIED);
 	return !!data.add_errors;
 }
@@ -172,7 +172,7 @@ static void treat_gitlinks(const char **pathspec)
 					/* strip trailing slash */
 					pathspec[j] = xstrndup(ce->name, len);
 				else
-					die ("Path '%s' is in submodule '%.*s'",
+					die (_("Path '%s' is in submodule '%.*s'"),
 						pathspec[j], len, ce->name);
 			}
 		}
@@ -188,10 +188,10 @@ static void refresh(int verbose, const char **pathspec)
 		/* nothing */;
 	seen = xcalloc(specs, 1);
 	refresh_index(&the_index, verbose ? REFRESH_IN_PORCELAIN : REFRESH_QUIET,
-		      pathspec, seen, "Unstaged changes after refreshing the index:");
+		      pathspec, seen, _("Unstaged changes after refreshing the index:"));
 	for (i = 0; i < specs; i++) {
 		if (!seen[i])
-			die("pathspec '%s' did not match any files", pathspec[i]);
+			die(_("pathspec '%s' did not match any files"), pathspec[i]);
 	}
         free(seen);
 }
@@ -205,7 +205,7 @@ static const char **validate_pathspec(int argc, const char **argv, const char *p
 		for (p = pathspec; *p; p++) {
 			if (has_symlink_leading_path(*p, strlen(*p))) {
 				int len = prefix ? strlen(prefix) : 0;
-				die("'%s' is beyond a symbolic link", *p + len);
+				die(_("'%s' is beyond a symbolic link"), *p + len);
 			}
 		}
 	}
@@ -272,7 +272,7 @@ static int edit_patch(int argc, const char **argv, const char *prefix)
 	git_config(git_diff_basic_config, NULL); /* no "diff" UI options */
 
 	if (read_cache() < 0)
-		die ("Could not read the index");
+		die (_("Could not read the index"));
 
 	init_revisions(&rev, prefix);
 	rev.diffopt.context = 7;
@@ -281,24 +281,24 @@ static int edit_patch(int argc, const char **argv, const char *prefix)
 	rev.diffopt.output_format = DIFF_FORMAT_PATCH;
 	out = open(file, O_CREAT | O_WRONLY, 0644);
 	if (out < 0)
-		die ("Could not open '%s' for writing.", file);
+		die (_("Could not open '%s' for writing."), file);
 	rev.diffopt.file = xfdopen(out, "w");
 	rev.diffopt.close_file = 1;
 	if (run_diff_files(&rev, 0))
-		die ("Could not write patch");
+		die (_("Could not write patch"));
 
 	launch_editor(file, NULL, NULL);
 
 	if (stat(file, &st))
-		die_errno("Could not stat '%s'", file);
+		die_errno(_("Could not stat '%s'"), file);
 	if (!st.st_size)
-		die("Empty patch. Aborted.");
+		die(_("Empty patch. Aborted."));
 
 	memset(&child, 0, sizeof(child));
 	child.git_cmd = 1;
 	child.argv = apply_argv;
 	if (run_command(&child))
-		die ("Could not apply '%s'", file);
+		die (_("Could not apply '%s'"), file);
 
 	unlink(file);
 	return 0;
@@ -307,7 +307,7 @@ static int edit_patch(int argc, const char **argv, const char *prefix)
 static struct lock_file lock_file;
 
 static const char ignore_error[] =
-"The following paths are ignored by one of your .gitignore files:\n";
+N_("The following paths are ignored by one of your .gitignore files:\n");
 
 static int verbose = 0, show_only = 0, ignored_too = 0, refresh_only = 0;
 static int ignore_add_errors, addremove, intent_to_add, ignore_missing = 0;
@@ -317,12 +317,12 @@ static struct option builtin_add_options[] = {
 	OPT__VERBOSE(&verbose, "be verbose"),
 	OPT_GROUP(""),
 	OPT_BOOLEAN('i', "interactive", &add_interactive, "interactive picking"),
-	OPT_BOOLEAN('p', "patch", &patch_interactive, "interactive patching"),
+	OPT_BOOLEAN('p', "patch", &patch_interactive, "select hunks interactively"),
 	OPT_BOOLEAN('e', "edit", &edit_interactive, "edit current diff and apply"),
 	OPT__FORCE(&ignored_too, "allow adding otherwise ignored files"),
 	OPT_BOOLEAN('u', "update", &take_worktree_changes, "update tracked files"),
 	OPT_BOOLEAN('N', "intent-to-add", &intent_to_add, "record only the fact that the path will be added later"),
-	OPT_BOOLEAN('A', "all", &addremove, "add all, noticing removal of tracked files"),
+	OPT_BOOLEAN('A', "all", &addremove, "add changes from all tracked and untracked files"),
 	OPT_BOOLEAN( 0 , "refresh", &refresh_only, "don't add, only refresh the index"),
 	OPT_BOOLEAN( 0 , "ignore-errors", &ignore_add_errors, "just skip files which cannot be added because of errors"),
 	OPT_BOOLEAN( 0 , "ignore-missing", &ignore_missing, "check if - even missing - files are ignored in dry run"),
@@ -331,8 +331,8 @@ static struct option builtin_add_options[] = {
 
 static int add_config(const char *var, const char *value, void *cb)
 {
-	if (!strcasecmp(var, "add.ignoreerrors") ||
-	    !strcasecmp(var, "add.ignore-errors")) {
+	if (!strcmp(var, "add.ignoreerrors") ||
+	    !strcmp(var, "add.ignore-errors")) {
 		ignore_add_errors = git_config_bool(var, value);
 		return 0;
 	}
@@ -344,17 +344,17 @@ static int add_files(struct dir_struct *dir, int flags)
 	int i, exit_status = 0;
 
 	if (dir->ignored_nr) {
-		fprintf(stderr, ignore_error);
+		fprintf(stderr, _(ignore_error));
 		for (i = 0; i < dir->ignored_nr; i++)
 			fprintf(stderr, "%s\n", dir->ignored[i]->name);
-		fprintf(stderr, "Use -f if you really want to add them.\n");
-		die("no files added");
+		fprintf(stderr, _("Use -f if you really want to add them.\n"));
+		die(_("no files added"));
 	}
 
 	for (i = 0; i < dir->nr; i++)
 		if (add_file_to_cache(dir->entries[i]->name, flags)) {
 			if (!ignore_add_errors)
-				die("adding files failed");
+				die(_("adding files failed"));
 			exit_status = 1;
 		}
 	return exit_status;
@@ -386,9 +386,9 @@ int cmd_add(int argc, const char **argv, const char *prefix)
 	argv++;
 
 	if (addremove && take_worktree_changes)
-		die("-A and -u are mutually incompatible");
+		die(_("-A and -u are mutually incompatible"));
 	if (!show_only && ignore_missing)
-		die("Option --ignore-missing can only be used together with --dry-run");
+		die(_("Option --ignore-missing can only be used together with --dry-run"));
 	if ((addremove || take_worktree_changes) && !argc) {
 		static const char *here[2] = { ".", NULL };
 		argc = 1;
@@ -408,14 +408,14 @@ int cmd_add(int argc, const char **argv, const char *prefix)
 		  ? ADD_CACHE_IGNORE_REMOVAL : 0));
 
 	if (require_pathspec && argc == 0) {
-		fprintf(stderr, "Nothing specified, nothing added.\n");
-		fprintf(stderr, "Maybe you wanted to say 'git add .'?\n");
+		fprintf(stderr, _("Nothing specified, nothing added.\n"));
+		fprintf(stderr, _("Maybe you wanted to say 'git add .'?\n"));
 		return 0;
 	}
 	pathspec = validate_pathspec(argc, argv, prefix);
 
 	if (read_cache() < 0)
-		die("index file corrupt");
+		die(_("index file corrupt"));
 	treat_gitlinks(pathspec);
 
 	if (add_new_files) {
@@ -451,7 +451,7 @@ int cmd_add(int argc, const char **argv, const char *prefix)
 					if (excluded(&dir, pathspec[i], &dtype))
 						dir_add_ignored(&dir, pathspec[i], strlen(pathspec[i]));
 				} else
-					die("pathspec '%s' did not match any files",
+					die(_("pathspec '%s' did not match any files"),
 					    pathspec[i]);
 			}
 		}
@@ -467,7 +467,7 @@ int cmd_add(int argc, const char **argv, const char *prefix)
 	if (active_cache_changed) {
 		if (write_cache(newfd, active_cache, active_nr) ||
 		    commit_locked_index(&lock_file))
-			die("Unable to write new index file");
+			die(_("Unable to write new index file"));
 	}
 
 	return exit_status;
