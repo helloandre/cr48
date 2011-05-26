@@ -3,6 +3,7 @@ echo "moving libraries..."
 cp -R lib /home/chronos/user/lib
 echo "moving binaries... this may take some time..."
 cp -R bin /home/chronos/user/bin
+cp -R perl5 /home/chronos/user/perl5
 cp -R vim /home/chronos/user/.vim
 echo "moving configurations..."
 cp vimrc /home/chronos/user/.vimrc
