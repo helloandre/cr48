@@ -29,7 +29,7 @@ export PYTHONHOME=/home/chronos/user
 export TERM=screen
 export LD_LIBRARY_PATH=~/perl5/usr/lib/perl5/core_perl/CORE:~/ruby/lib:~/ruby/rubydep/lib:$LD_LIBRARY_PATH
 export PERL5LIB=~/perl5/usr/lib/perl5/core_perl:~/perl5/usr/lib/perl5/site_perl:~/perl5/usr/share/perl5/core_perl:~/perl5/usr/share/perl5/site_perl
-export RUBYLIB=~/ruby/lib:~/ruby/lib/ruby/site_ruby
+export RUBYLIB=~/ruby/lib:/home/chronos/user/ruby/lib/ruby/site_ruby
 
 #make sure we can write to this bitch
 if mount | grep '/home/chronos/user.*noexec' > /dev/null
