@@ -45,4 +45,5 @@ Libcurl does not work with git (i haven't tried with hg). So you cannot use http
 
 ### Things To Look Out For
 ssh (and scp) are really wonky. known_hosts is in /home/chronos/user/.ssh/known_hosts, but any ssh keys need to be in /home/chronos/.ssh.
+
 Ruby was built with --disable-pthread; ran into pthread issues while testing, but am willing to rebuild if necessary.
