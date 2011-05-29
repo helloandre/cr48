@@ -16,6 +16,7 @@ I took a standard install of Ubuntu 10.10 32 bit and staticly compiled a bunch o
  * vim 7.3.206 (with no gui and some nice .vimrc tweaks)
  * python 2.6.6 (currently throwing a libz.so and libcrypto.so errors, but nothing serious)
  * perl 5.12.2
+ * ruby 1.9.2 with rubygems 1.8.4
  * mercurial 1.7.5
  * git 1.7.5.2
  * Subversion 1.6.16
@@ -44,3 +45,5 @@ Libcurl does not work with git (i haven't tried with hg). So you cannot use http
 
 ### Things To Look Out For
 ssh (and scp) are really wonky. known_hosts is in /home/chronos/user/.ssh/known_hosts, but any ssh keys need to be in /home/chronos/.ssh.
+
+Ruby was built with --disable-pthread; ran into pthread issues while testing, but am willing to rebuild if necessary.

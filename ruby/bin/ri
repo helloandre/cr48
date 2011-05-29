@@ -1,0 +1,5 @@
+#!/home/chronos/user/ruby/bin/ruby
+
+require 'rdoc/ri/driver'
+
+RDoc::RI::Driver.run ARGV
