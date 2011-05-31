@@ -1,0 +1,2 @@
+U:RDoc::AnyMethod[iI"length:EFI"Queue#length;FF:publico:RDoc::Markup::Document:@parts[o:RDoc::Markup::Paragraph;	[I"%Returns the length of the queue.;F00[[I"Queue#size;Fo;;	[o;
+;	[I"Alias of length.;FI"();F

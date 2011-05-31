@@ -1,0 +1,2 @@
+U:RDoc::AnyMethod[iI"mon_try_enter:EFI"MonitorMixin#mon_try_enter;FF:publico:RDoc::Markup::Document:@parts[o:RDoc::Markup::Paragraph;	[I"IAttempts to enter exclusive section.  Returns +false+ if lock fails.;F00[[I"MonitorMixin#try_mon_enter;Fo;;	[o;
+;	[I"For backward compatibility;FI"();F
