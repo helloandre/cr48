@@ -1,1 +1,0 @@
-../../../../share/pyshared/apport/chroot.py

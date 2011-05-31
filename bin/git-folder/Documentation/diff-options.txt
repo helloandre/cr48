@@ -72,6 +72,10 @@ endif::git-format-patch[]
 	a cut-off percent (3% by default) are not shown. The cut-off percent
 	can be set with `--dirstat=<limit>`. Changes in a child directory are not
 	counted for the parent directory, unless `--cumulative` is used.
++
+Note that the `--dirstat` option computes the changes while ignoring
+the amount of pure code movements within a file.  In other words,
+rearranging lines in a file is not counted as much as other changes.
 
 --dirstat-by-file[=<limit>]::
 	Same as `--dirstat`, but counts changed files instead of lines.
@@ -239,7 +243,7 @@ ifdef::git-log[]
 	For following files across renames while traversing history, see
 	`--follow`.
 endif::git-log[]
-	If `n` is specified, it is a is a threshold on the similarity
+	If `n` is specified, it is a threshold on the similarity
 	index (i.e. amount of addition/deletions compared to the
 	file's size). For example, `-M90%` means git should consider a
 	delete/add pair to be a rename if more than 90% of the file

@@ -1,1 +1,0 @@
-/usr/share/pyshared/checkbox_gtk/gtk_interface.py

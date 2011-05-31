@@ -4,18 +4,18 @@
 # to run test suite against sandbox, but with only bindir-installed
 # executables in PATH.  The Makefile copies this into various
 # files in bin-wrappers, substituting
-# /home/andre/Desktop/git-git-40a3169 and test-obj-pool.
+# /home/pcheah/git-1.7.5.2 and test-obj-pool.
 
-GIT_EXEC_PATH='/home/andre/Desktop/git-git-40a3169'
+GIT_EXEC_PATH='/home/pcheah/git-1.7.5.2'
 if test -n "$NO_SET_GIT_TEMPLATE_DIR"
 then
 	unset GIT_TEMPLATE_DIR
 else
-	GIT_TEMPLATE_DIR='/home/andre/Desktop/git-git-40a3169/templates/blt'
+	GIT_TEMPLATE_DIR='/home/pcheah/git-1.7.5.2/templates/blt'
 	export GIT_TEMPLATE_DIR
 fi
-GITPERLLIB='/home/andre/Desktop/git-git-40a3169/perl/blib/lib'
-PATH='/home/andre/Desktop/git-git-40a3169/bin-wrappers:'"$PATH"
+GITPERLLIB='/home/pcheah/git-1.7.5.2/perl/blib/lib'
+PATH='/home/pcheah/git-1.7.5.2/bin-wrappers:'"$PATH"
 export GIT_EXEC_PATH GITPERLLIB PATH
 
 exec "${GIT_EXEC_PATH}/test-obj-pool" "$@"

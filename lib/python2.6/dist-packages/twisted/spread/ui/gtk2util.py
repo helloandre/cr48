@@ -1,1 +1,0 @@
-../../../../../../share/pyshared/twisted/spread/ui/gtk2util.py

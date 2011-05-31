@@ -1,1 +1,0 @@
-../../../../../../share/pyshared/twisted/manhole/ui/gtk2manhole.py

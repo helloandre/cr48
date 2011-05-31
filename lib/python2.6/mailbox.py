@@ -1,4 +1,4 @@
-#! /usr/bin/python2.6
+#! /usr/bin/env python
 
 """Read/write support for Maildir, mbox, MH, Babyl, and MMDF mailboxes."""
 

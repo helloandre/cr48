@@ -1,1 +1,0 @@
-../../../../../share/pyshared/twisted/test/reflect_helper_ZDE.py

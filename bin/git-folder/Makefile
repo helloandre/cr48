@@ -45,11 +45,6 @@ all::
 # Define NO_D_TYPE_IN_DIRENT if your platform defines DT_UNKNOWN but lacks
 # d_type in struct dirent (Cygwin 1.5, fixed in Cygwin 1.7).
 #
-# Define NO_C99_FORMAT if your formatted IO functions (printf/scanf et.al.)
-# do not support the 'size specifiers' introduced by C99, namely ll, hh,
-# j, z, t. (representing long long int, char, intmax_t, size_t, ptrdiff_t).
-# some C compilers supported these specifiers prior to C99 as an extension.
-#
 # Define NO_STRCASESTR if you don't have strcasestr.
 #
 # Define NO_MEMMEM if you don't have memmem.
@@ -216,6 +211,11 @@ all::
 #
 # Define NO_REGEX if you have no or inferior regex support in your C library.
 #
+# Define GETTEXT_POISON if you are debugging the choice of strings marked
+# for translation.  In a GETTEXT_POISON build, you can turn all strings marked
+# for translation into gibberish by setting the GIT_GETTEXT_POISON variable
+# (to any value) in your environment.
+#
 # Define JSMIN to point to JavaScript minifier that functions as
 # a filter to have gitweb.js minified.
 #
@@ -316,6 +316,7 @@ INSTALL = install
 RPMBUILD = rpmbuild
 TCL_PATH = tclsh
 TCLTK_PATH = wish
+XGETTEXT = xgettext
 PTHREAD_LIBS = -lpthread
 PTHREAD_CFLAGS =
 GCOV = gcov
@@ -435,6 +436,7 @@ TEST_PROGRAMS_NEED_X += test-subprocess
 TEST_PROGRAMS_NEED_X += test-svn-fe
 TEST_PROGRAMS_NEED_X += test-treap
 TEST_PROGRAMS_NEED_X += test-index-version
+TEST_PROGRAMS_NEED_X += test-mktemp
 
 TEST_PROGRAMS = $(patsubst %,%$X,$(TEST_PROGRAMS_NEED_X))
 
@@ -480,7 +482,7 @@ ifndef PERL_PATH
 	PERL_PATH = /usr/bin/perl
 endif
 ifndef PYTHON_PATH
-	PYTHON_PATH = /usr/bin/python
+	PYTHON_PATH = /home/pcheah/local/bin/python
 endif
 
 export PERL_PATH
@@ -514,6 +516,7 @@ LIB_H += diff.h
 LIB_H += dir.h
 LIB_H += exec_cmd.h
 LIB_H += fsck.h
+LIB_H += gettext.h
 LIB_H += git-compat-util.h
 LIB_H += graph.h
 LIB_H += grep.h
@@ -870,7 +873,6 @@ ifeq ($(uname_S),SunOS)
 		NO_UNSETENV = YesPlease
 		NO_SETENV = YesPlease
 		NO_STRLCPY = YesPlease
-		NO_C99_FORMAT = YesPlease
 		NO_STRTOUMAX = YesPlease
 		GIT_TEST_CMP = cmp
 	endif
@@ -881,21 +883,18 @@ ifeq ($(uname_S),SunOS)
 		NO_UNSETENV = YesPlease
 		NO_SETENV = YesPlease
 		NO_STRLCPY = YesPlease
-		NO_C99_FORMAT = YesPlease
 		NO_STRTOUMAX = YesPlease
 		GIT_TEST_CMP = cmp
 	endif
 	ifeq ($(uname_R),5.8)
 		NO_UNSETENV = YesPlease
 		NO_SETENV = YesPlease
-		NO_C99_FORMAT = YesPlease
 		NO_STRTOUMAX = YesPlease
 		GIT_TEST_CMP = cmp
 	endif
 	ifeq ($(uname_R),5.9)
 		NO_UNSETENV = YesPlease
 		NO_SETENV = YesPlease
-		NO_C99_FORMAT = YesPlease
 		NO_STRTOUMAX = YesPlease
 		GIT_TEST_CMP = cmp
 	endif
@@ -1041,6 +1040,7 @@ ifeq ($(uname_S),HP-UX)
 	NO_UNSETENV = YesPlease
 	NO_HSTRERROR = YesPlease
 	NO_SYS_SELECT_H = YesPlease
+	NO_FNMATCH_CASEFOLD = YesPlease
 	SNPRINTF_RETURNS_BOGUS = YesPlease
 	NO_NSEC = YesPlease
 	ifeq ($(uname_R),B.11.00)
@@ -1074,7 +1074,6 @@ ifeq ($(uname_S),Windows)
 	NO_MEMMEM = YesPlease
 	# NEEDS_LIBICONV = YesPlease
 	NO_ICONV = YesPlease
-	NO_C99_FORMAT = YesPlease
 	NO_STRTOUMAX = YesPlease
 	NO_STRTOULL = YesPlease
 	NO_MKDTEMP = YesPlease
@@ -1151,7 +1150,6 @@ ifneq (,$(findstring MINGW,$(uname_S)))
 	NO_MEMMEM = YesPlease
 	NEEDS_LIBICONV = YesPlease
 	OLD_ICONV = YesPlease
-	NO_C99_FORMAT = YesPlease
 	NO_STRTOUMAX = YesPlease
 	NO_MKDTEMP = YesPlease
 	NO_MKSTEMPS = YesPlease
@@ -1354,9 +1352,6 @@ endif
 ifdef NO_NSEC
 	BASIC_CFLAGS += -DNO_NSEC
 endif
-ifdef NO_C99_FORMAT
-	BASIC_CFLAGS += -DNO_C99_FORMAT
-endif
 ifdef SNPRINTF_RETURNS_BOGUS
 	COMPAT_CFLAGS += -DSNPRINTF_RETURNS_BOGUS
 	COMPAT_OBJS += compat/snprintf.o
@@ -1367,6 +1362,10 @@ ifdef FREAD_READS_DIRECTORIES
 endif
 ifdef NO_SYMLINK_HEAD
 	BASIC_CFLAGS += -DNO_SYMLINK_HEAD
+endif
+ifdef GETTEXT_POISON
+	LIB_OBJS += gettext.o
+	BASIC_CFLAGS += -DGETTEXT_POISON
 endif
 ifdef NO_STRCASESTR
 	COMPAT_CFLAGS += -DNO_STRCASESTR
@@ -1575,10 +1574,11 @@ ifneq ($(findstring $(MAKEFLAGS),s),s)
 ifndef V
 	QUIET_CC       = @echo '   ' CC $@;
 	QUIET_AR       = @echo '   ' AR $@;
-	QUIET_LINK     = @echo '   ' LINK $@;
+	QUIET_LINK     = 
 	QUIET_BUILT_IN = @echo '   ' BUILTIN $@;
 	QUIET_GEN      = @echo '   ' GEN $@;
 	QUIET_LNCP     = @echo '   ' LN/CP $@;
+	QUIET_XGETTEXT = @echo '   ' XGETTEXT $@;
 	QUIET_GCOV     = @echo '   ' GCOV $@;
 	QUIET_SUBDIR0  = +@subdir=
 	QUIET_SUBDIR1  = ;$(NO_SUBDIR) echo '   ' SUBDIR $$subdir; \
@@ -1680,7 +1680,7 @@ git.s git.o: EXTRA_CPPFLAGS = -DGIT_VERSION='"$(GIT_VERSION)"' \
 
 git$X: git.o $(BUILTIN_OBJS) $(GITLIBS)
 	$(QUIET_LINK)$(CC) $(ALL_CFLAGS) -o $@ git.o \
-		$(BUILTIN_OBJS) $(ALL_LDFLAGS) $(LIBS)
+		$(BUILTIN_OBJS) $(ALL_LDFLAGS) $(LIBS)  /usr/lib/libdl.a
 
 help.o: common-cmds.h
 
@@ -1747,33 +1747,7 @@ $(patsubst %.perl,%,$(SCRIPT_PERL)): % : %.perl
 gitweb:
 	$(QUIET_SUBDIR0)gitweb $(QUIET_SUBDIR1) all
 
-ifdef JSMIN
-GITWEB_PROGRAMS += gitweb/static/gitweb.min.js
-GITWEB_JS = gitweb/static/gitweb.min.js
-else
-GITWEB_JS = gitweb/static/gitweb.js
-endif
-ifdef CSSMIN
-GITWEB_PROGRAMS += gitweb/static/gitweb.min.css
-GITWEB_CSS = gitweb/static/gitweb.min.css
-else
-GITWEB_CSS = gitweb/static/gitweb.css
-endif
-OTHER_PROGRAMS +=  gitweb/gitweb.cgi  $(GITWEB_PROGRAMS)
-gitweb/gitweb.cgi: gitweb/gitweb.perl $(GITWEB_PROGRAMS)
-	$(QUIET_SUBDIR0)gitweb $(QUIET_SUBDIR1) $(patsubst gitweb/%,%,$@)
-
-ifdef JSMIN
-gitweb/static/gitweb.min.js: gitweb/static/gitweb.js
-	$(QUIET_SUBDIR0)gitweb $(QUIET_SUBDIR1) $(patsubst gitweb/%,%,$@)
-endif # JSMIN
-ifdef CSSMIN
-gitweb/static/gitweb.min.css: gitweb/static/gitweb.css
-	$(QUIET_SUBDIR0)gitweb $(QUIET_SUBDIR1) $(patsubst gitweb/%,%,$@)
-endif # CSSMIN
-
-
-git-instaweb: git-instaweb.sh gitweb/gitweb.cgi gitweb/static/gitweb.css gitweb/static/gitweb.js
+git-instaweb: git-instaweb.sh gitweb
 	$(QUIET_GEN)$(RM) $@ $@+ && \
 	sed -e '1s|#!.*/sh|#!$(SHELL_PATH_SQ)|' \
 	    -e 's/@@GIT_VERSION@@/$(GIT_VERSION)/g' \
@@ -1999,11 +1973,11 @@ compat/nedmalloc/nedmalloc.o: EXTRA_CPPFLAGS = \
 endif
 
 git-%$X: %.o $(GITLIBS)
-	$(QUIET_LINK)$(CC) $(ALL_CFLAGS) -o $@ $(ALL_LDFLAGS) $(filter %.o,$^) $(LIBS)
+	$(QUIET_LINK)$(CC) $(ALL_CFLAGS) -o $@ $(ALL_LDFLAGS) $(filter %.o,$^) $(LIBS) -ldl
 
 git-imap-send$X: imap-send.o $(GITLIBS)
 	$(QUIET_LINK)$(CC) $(ALL_CFLAGS) -o $@ $(ALL_LDFLAGS) $(filter %.o,$^) \
-		$(LIBS) $(OPENSSL_LINK) $(OPENSSL_LIBSSL) $(LIB_4_CRYPTO)
+		$(LIBS) $(OPENSSL_LINK) $(OPENSSL_LIBSSL) $(LIB_4_CRYPTO) -ldl
 
 git-http-fetch$X: revision.o http.o http-walker.o http-fetch.o $(GITLIBS)
 	$(QUIET_LINK)$(CC) $(ALL_CFLAGS) -o $@ $(ALL_LDFLAGS) $(filter %.o,$^) \
@@ -2046,6 +2020,21 @@ info:
 pdf:
 	$(MAKE) -C Documentation pdf
 
+XGETTEXT_FLAGS = \
+	--force-po \
+	--add-comments \
+	--msgid-bugs-address="Git Mailing List <git@vger.kernel.org>" \
+	--from-code=UTF-8
+XGETTEXT_FLAGS_C = $(XGETTEXT_FLAGS) --language=C \
+	--keyword=_ --keyword=N_ --keyword="Q_:1,2"
+LOCALIZED_C := $(C_OBJ:o=c)
+
+po/git.pot: $(LOCALIZED_C)
+	$(QUIET_XGETTEXT)$(XGETTEXT) -o$@+ $(XGETTEXT_FLAGS_C) $(LOCALIZED_C) && \
+	mv $@+ $@
+
+pot: po/git.pot
+
 $(ETAGS_TARGET): FORCE
 	$(RM) $(ETAGS_TARGET)
 	$(FIND) . -name '*.[hcS]' -print | xargs etags -a -o $(ETAGS_TARGET)
@@ -2087,6 +2076,7 @@ endif
 ifdef GIT_TEST_CMP_USE_COPIED_CONTEXT
 	@echo GIT_TEST_CMP_USE_COPIED_CONTEXT=YesPlease >>$@
 endif
+	@echo GETTEXT_POISON=\''$(subst ','\'',$(subst ','\'',$(GETTEXT_POISON)))'\' >>$@
 
 ### Detect Tck/Tk interpreter path changes
 ifndef NO_TCLTK
@@ -2147,7 +2137,7 @@ check-sha1:: test-sha1$X
 check: common-cmds.h
 	if sparse; \
 	then \
-		for i in *.c; \
+		for i in $(patsubst %.o, %.c, $(GIT_OBJS)); \
 		do \
 			sparse $(ALL_CFLAGS) $(SPARSE_FLAGS) $$i || exit; \
 		done; \
@@ -2312,6 +2302,7 @@ dist-doc:
 
 distclean: clean
 	$(RM) configure
+	$(RM) po/git.pot
 
 clean:
 	$(RM) *.o block-sha1/*.o ppc/*.o compat/*.o compat/*/*.o xdiff/*.o vcs-svn/*.o \

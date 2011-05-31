@@ -1,1 +1,0 @@
-/usr/share/pyshared/gwibber/microblog/qaiku.py

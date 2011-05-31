@@ -281,7 +281,7 @@ sed -e 's/[ 	]*#.*//' -e '/^[ 	]*$/d' |
 	-)	;;
 	*)	sedf="@sed.in.$$"
 		trap 'rm -f $sedf' 0 1 2 3
-		printf "1i\\" >$sedf
+		echo "1i\\" >$sedf
 		str="# Generated automatically from $makepre by makesetup."
 		echo "$str" >>$sedf
 		echo "s%_MODOBJS_%$OBJS%" >>$sedf

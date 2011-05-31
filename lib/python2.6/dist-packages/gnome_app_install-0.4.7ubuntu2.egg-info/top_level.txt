@@ -1,1 +1,0 @@
-/usr/share/pyshared/gnome_app_install-0.4.7ubuntu2.egg-info/top_level.txt

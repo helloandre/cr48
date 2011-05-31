@@ -1,1 +1,0 @@
-../../../../../../share/pyshared/twisted/scripts/test/test_mktap.py

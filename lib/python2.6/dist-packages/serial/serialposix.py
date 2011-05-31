@@ -1,1 +1,0 @@
-/usr/share/pyshared/serial/serialposix.py

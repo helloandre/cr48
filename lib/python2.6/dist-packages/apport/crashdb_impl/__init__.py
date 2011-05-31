@@ -1,1 +1,0 @@
-../../../../../share/pyshared/apport/crashdb_impl/__init__.py

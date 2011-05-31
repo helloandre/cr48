@@ -1,1 +1,0 @@
-../../../../../share/pyshared/twisted/trial/__init__.py

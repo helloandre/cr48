@@ -1,4 +1,4 @@
-#! /usr/bin/python2.6
+#! /usr/bin/env python
 
 """Tool for measuring execution time of small code snippets.
 

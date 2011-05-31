@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-use lib (split(/:/, $ENV{GITPERLLIB} || "/home/andre/share/perl/5.10.1"));
+use lib (split(/:/, $ENV{GITPERLLIB} || "/home/pcheah/local/lib/perl5/site_perl/5.8.8"));
 #
 # This tool is copyright (c) 2005, Martin Langhoff.
 # It is released under the Gnu Public License, version 2.

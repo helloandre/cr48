@@ -54,7 +54,7 @@ test_expect_success 'read-tree removes worktree, dirty case' '
 '
 
 NULL_SHA1=e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
-ZERO_SHA0=0000000000000000000000000000000000000000
+
 setup_absent() {
 	test -f 1 && rm 1
 	git update-index --remove 1 &&
@@ -124,13 +124,13 @@ cat >expected <<EOF
 Would remove expected
 Would remove result
 EOF
-test_expect_success 'git-clean, absent case' '
+test_expect_success C_LOCALE_OUTPUT 'git-clean, absent case' '
 	setup_absent &&
 	git clean -n > result &&
 	test_cmp expected result
 '
 
-test_expect_success 'git-clean, dirty case' '
+test_expect_success C_LOCALE_OUTPUT 'git-clean, dirty case' '
 	setup_dirty &&
 	git clean -n > result &&
 	test_cmp expected result

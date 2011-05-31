@@ -1,1 +1,0 @@
-/usr/share/pyshared/desktopcouch/records/server_base.py

@@ -1,1 +1,0 @@
-/usr/share/pyshared/telepathy/_generated/Connection_Manager.py

@@ -95,8 +95,7 @@ class build (Command):
         # 'lib.<plat>' under the base build directory.  We only use one of
         # them for a given distribution, though --
         if self.build_purelib is None:
-            self.build_purelib = os.path.join(self.build_base,
-                                              'lib' + plat_specifier)
+            self.build_purelib = os.path.join(self.build_base, 'lib')
         if self.build_platlib is None:
             self.build_platlib = os.path.join(self.build_base,
                                               'lib' + plat_specifier)

@@ -1,1 +1,0 @@
-/usr/share/pyshared/telepathy/server/debug.py

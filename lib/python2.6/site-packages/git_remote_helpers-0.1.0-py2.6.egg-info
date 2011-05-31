@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: git_remote_helpers
+Version: 0.1.0
+Summary: Git remote helper program for non-git repositories
+Home-page: http://www.git-scm.com/
+Author: The Git Community
+Author-email: git@vger.kernel.org
+License: GPLv2
+Description: UNKNOWN
+Platform: UNKNOWN
