@@ -1,1 +1,0 @@
-../../../../../share/pyshared/twisted/scripts/_twistd_unix.py

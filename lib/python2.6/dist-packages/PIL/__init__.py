@@ -1,1 +1,0 @@
-../../../../share/pyshared/PIL/__init__.py

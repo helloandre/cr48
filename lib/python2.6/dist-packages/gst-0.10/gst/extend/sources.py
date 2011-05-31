@@ -1,1 +1,0 @@
-../../../../../../share/pyshared/gst-0.10/gst/extend/sources.py

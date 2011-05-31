@@ -66,7 +66,7 @@ COMMANDS
 	Set the 'rewriteRoot' option in the [svn-remote] config.
 --rewrite-uuid=<UUID>;;
 	Set the 'rewriteUUID' option in the [svn-remote] config.
---username=<USER>;;
+--username=<user>;;
 	For transports that SVN handles authentication for (http,
 	https, and plain svn), specify the username.  For other
 	transports (eg svn+ssh://), you must include the username in
@@ -145,17 +145,6 @@ Skip "branches" and "tags" of first level directories;;
 ------------------------------------------------------------------------
 --
 
---use-log-author;;
-	When retrieving svn commits into git (as part of fetch, rebase, or
-	dcommit operations), look for the first From: or Signed-off-by: line
-	in the log message and use that as the author string.
---add-author-from;;
-	When committing to svn from git (as part of commit or dcommit
-	operations), if the existing log message doesn't already have a
-	From: or Signed-off-by: line, append a From: line based on the
-	git commit's author string.  If you use this, then --use-log-author
-	will retrieve a valid author string for all commits.
-
 'clone'::
 	Runs 'init' and 'fetch'.  It will automatically create a
 	directory based on the basename of the URL passed to it;
@@ -216,6 +205,13 @@ config key: svn.commiturl (overwrites all svn-remote.<name>.commiturl options)
 +
 Using this option for any other purpose (don't ask) is very strongly
 discouraged.
+
+--mergeinfo=<mergeinfo>;;
+	Add the given merge information during the dcommit
+	(e.g. `--mergeinfo="/branches/foo:1-10"`). All svn server versions can
+	store this information (as a property), and svn clients starting from
+	version 1.5 can make use of it. 'git svn' currently does not use it
+	and does not set it automatically.
 
 'branch'::
 	Create a branch in the SVN repository.
@@ -443,8 +439,8 @@ OPTIONS
 	Only used with the 'init' command.
 	These are passed directly to 'git init'.
 
--r <ARG>::
---revision <ARG>::
+-r <arg>::
+--revision <arg>::
 	   Used with the 'fetch' command.
 +
 This allows revision ranges for partial/cauterized history
@@ -565,6 +561,17 @@ repository that will be fetched from.
 For 'branch' and 'tag', display the urls that will be used for copying when
 creating the branch or tag.
 
+--use-log-author::
+	When retrieving svn commits into git (as part of 'fetch', 'rebase', or
+	'dcommit' operations), look for the first `From:` or `Signed-off-by:` line
+	in the log message and use that as the author string.
+--add-author-from::
+	When committing to svn from git (as part of 'commit-diff', 'set-tree' or 'dcommit'
+	operations), if the existing log message doesn't already have a
+	`From:` or `Signed-off-by:` line, append a `From:` line based on the
+	git commit's author string.  If you use this, then `--use-log-author`
+	will retrieve a valid author string for all commits.
+
 
 ADVANCED OPTIONS
 ----------------
@@ -647,6 +654,16 @@ svn-remote.<name>.rewriteUUID::
 	to remap the UUID manually. This may be useful in situations
 	where the original UUID is not available via either useSvmProps
 	or useSvnsyncProps.
+
+svn-remote.<name>.pushurl::
+
+	Similar to git's 'remote.<name>.pushurl', this key is designed
+	to be used in cases where 'url' points to an SVN repository
+	via a read-only transport, to provide an alternate read/write
+	transport. It is assumed that both keys point to the same
+	repository. Unlike 'commiturl', 'pushurl' is a base path. If
+	either 'commiturl' or 'pushurl' could be used, 'commiturl'
+	takes precedence.
 
 svn.brokenSymlinkWorkaround::
 	This disables potentially expensive checks to workaround
@@ -878,10 +895,6 @@ SEE ALSO
 --------
 linkgit:git-rebase[1]
 
-Author
-------
-Written by Eric Wong <normalperson@yhbt.net>.
-
-Documentation
--------------
-Written by Eric Wong <normalperson@yhbt.net>.
+GIT
+---
+Part of the linkgit:git[1] suite

@@ -1,1 +1,0 @@
-/usr/share/pyshared/telepathy/_generated/Channel_Interface_Chat_State.py

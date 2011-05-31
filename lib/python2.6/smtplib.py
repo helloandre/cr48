@@ -1,4 +1,4 @@
-#! /usr/bin/python2.6
+#! /usr/bin/env python
 
 '''SMTP/ESMTP client class.
 

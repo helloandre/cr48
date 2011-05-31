@@ -446,26 +446,11 @@ def find(domain, localedir=None, languages=None, all=0):
         if lang == 'C':
             break
         mofile = os.path.join(localedir, lang, 'LC_MESSAGES', '%s.mo' % domain)
-        mofile_lp = os.path.join("/usr/share/locale-langpack", lang,
-                               'LC_MESSAGES', '%s.mo' % domain)
-
-	# first look into the standard locale dir, then into the 
-	# langpack locale dir
-
-	# standard mo file
         if os.path.exists(mofile):
             if all:
                 result.append(mofile)
             else:
                 return mofile
-        
-	# langpack mofile -> use it
-        if os.path.exists(mofile_lp): 
-            if all:
-                result.append(mofile_lp)
-            else:
-                return mofile_lp
-
     return result
 
 

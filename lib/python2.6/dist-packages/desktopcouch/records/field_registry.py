@@ -1,1 +1,0 @@
-/usr/share/pyshared/desktopcouch/records/field_registry.py

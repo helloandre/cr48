@@ -22,11 +22,14 @@ alias ls='ls --color --group-directories-first'
 alias ll='ls -lh'
 
 #need to make sure things are where they should be
-export PATH=$PATH:~/bin
+export PATH=~/bin:~/perl5/usr/bin:~/ruby/bin:$PATH
 export VIMRUNTIME=/home/chronos/user/.vim/vim
 export PYTHONPATH=/home/chronos/user/lib/python2.6
 export PYTHONHOME=/home/chronos/user
 export TERM=screen
+export LD_LIBRARY_PATH=~/perl5/usr/lib/perl5/core_perl/CORE:~/ruby/lib:~/ruby/rubydep/lib:$LD_LIBRARY_PATH
+export PERL5LIB=~/perl5/usr/lib/perl5/core_perl:~/perl5/usr/lib/perl5/site_perl:~/perl5/usr/share/perl5/core_perl:~/perl5/usr/share/perl5/site_perl
+export RUBYLIB=~/ruby/lib:/home/chronos/user/ruby/lib/ruby/site_ruby
 
 #make sure we can write to this bitch
 if mount | grep '/home/chronos/user.*noexec' > /dev/null

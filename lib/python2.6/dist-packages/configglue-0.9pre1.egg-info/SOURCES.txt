@@ -1,1 +1,0 @@
-/usr/share/pyshared/configglue-0.9pre1.egg-info/SOURCES.txt

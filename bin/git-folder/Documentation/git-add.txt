@@ -134,6 +134,8 @@ subdirectories.
 	If some files could not be added because of errors indexing
 	them, do not abort the operation, but continue adding the
 	others. The command shall still exit with non-zero status.
+	The configuration variable `add.ignoreErrors` can be set to
+	true to make this the default behaviour.
 
 --ignore-missing::
 	This option can only be used together with --dry-run. By using
@@ -377,14 +379,6 @@ linkgit:git-reset[1]
 linkgit:git-mv[1]
 linkgit:git-commit[1]
 linkgit:git-update-index[1]
-
-Author
-------
-Written by Linus Torvalds <torvalds@osdl.org>
-
-Documentation
---------------
-Documentation by Junio C Hamano and the git-list <git@vger.kernel.org>.
 
 GIT
 ---

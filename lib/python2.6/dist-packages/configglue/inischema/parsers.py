@@ -1,1 +1,0 @@
-/usr/share/pyshared/configglue/inischema/parsers.py

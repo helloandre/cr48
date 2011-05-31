@@ -1,1 +1,0 @@
-../../../../../share/pyshared/twisted/plugins/twisted_reactors.py

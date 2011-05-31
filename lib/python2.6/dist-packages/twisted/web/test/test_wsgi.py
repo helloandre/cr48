@@ -1,1 +1,0 @@
-../../../../../../share/pyshared/twisted/web/test/test_wsgi.py

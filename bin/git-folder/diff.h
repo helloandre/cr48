@@ -110,7 +110,8 @@ struct diff_options {
 	int pickaxe_opts;
 	int rename_score;
 	int rename_limit;
-	int warn_on_too_large_rename;
+	int needed_rename_limit;
+	int show_rename_progress;
 	int dirstat_percent;
 	int setup;
 	int abbrev;
@@ -133,9 +134,7 @@ struct diff_options {
 	FILE *file;
 	int close_file;
 
-	int nr_paths;
-	const char **paths;
-	int *pathlens;
+	struct pathspec pathspec;
 	change_fn_t change;
 	add_remove_fn_t add_remove;
 	diff_format_fn_t format_callback;
@@ -209,10 +208,7 @@ extern void diff_change(struct diff_options *,
 			const char *fullpath,
 			unsigned dirty_submodule1, unsigned dirty_submodule2);
 
-extern void diff_unmerge(struct diff_options *,
-			 const char *path,
-			 unsigned mode,
-			 const unsigned char *sha1);
+extern struct diff_filepair *diff_unmerge(struct diff_options *, const char *path);
 
 #define DIFF_SETUP_REVERSE      	1
 #define DIFF_SETUP_USE_CACHE		2

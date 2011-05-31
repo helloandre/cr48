@@ -1,1 +1,0 @@
-/usr/share/pyshared/desktopcouch/notes/__init__.py

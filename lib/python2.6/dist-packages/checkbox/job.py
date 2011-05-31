@@ -1,1 +1,0 @@
-/usr/share/pyshared/checkbox/job.py

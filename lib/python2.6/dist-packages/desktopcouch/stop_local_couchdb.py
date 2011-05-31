@@ -1,1 +1,0 @@
-/usr/share/pyshared/desktopcouch/stop_local_couchdb.py

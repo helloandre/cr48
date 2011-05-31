@@ -1,0 +1,3 @@
+U:RDoc::AnyMethod[iI"pop:EFI"Queue#pop;FF:publico:RDoc::Markup::Document:@parts[o:RDoc::Markup::Paragraph;	[I"QRetrieves data from the queue.  If the queue is empty, the calling thread is;FI"Psuspended until data is pushed onto the queue.  If +non_block+ is true, the;FI"8thread isn't suspended, and an exception is raised.;F00[[I"Queue#shift;Fo;;	[o;
+;	[I"Alias of pop;F[I"Queue#deq;Fo;;	[o;
+;	[I"Alias of pop;FI"(non_block=false);F

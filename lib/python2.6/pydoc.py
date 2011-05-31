@@ -1,4 +1,4 @@
-#! /usr/bin/python2.6
+#!/usr/bin/env python
 # -*- coding: latin-1 -*-
 """Generate Python documentation in HTML or text for interactive use.
 
@@ -26,10 +26,6 @@ Run "pydoc -w <name>" to write out the HTML documentation for a module
 to a file named "<name>.html".
 
 Module docs for core modules are assumed to be in
-
-    /usr/share/doc/pythonX.Y/html/library
-
-if the pythonX.Y-doc package is installed or in
 
     http://docs.python.org/library/
 
@@ -353,9 +349,6 @@ class Doc:
 
         docloc = os.environ.get("PYTHONDOCS",
                                 "http://docs.python.org/library")
-        docdir = '/usr/share/doc/python%s/html/library' % sys.version[:3]
-        if not os.environ.has_key("PYTHONDOCS") and os.path.isdir(docdir):
-            docloc = docdir
         basedir = os.path.join(sys.exec_prefix, "lib",
                                "python"+sys.version[0:3])
         if (isinstance(object, type(os)) and
@@ -1970,14 +1963,10 @@ def apropos(key):
         if modname[-9:] == '.__init__':
             modname = modname[:-9] + ' (package)'
         print modname, desc and '- ' + desc
-    def onerror(modname):
-        # Ignore non-ImportError exceptions raised whilst trying to
-        # import modules
-        pass
     try: import warnings
     except ImportError: pass
     else: warnings.filterwarnings('ignore') # ignore problems during import
-    ModuleScanner().run(callback, key, onerror=onerror)
+    ModuleScanner().run(callback, key)
 
 # --------------------------------------------------- web browser interface
 

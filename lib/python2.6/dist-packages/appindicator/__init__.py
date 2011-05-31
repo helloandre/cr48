@@ -1,1 +1,0 @@
-/usr/share/pyshared/appindicator/__init__.py

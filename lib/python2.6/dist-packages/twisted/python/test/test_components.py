@@ -1,1 +1,0 @@
-../../../../../../share/pyshared/twisted/python/test/test_components.py

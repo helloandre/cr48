@@ -1,1 +1,0 @@
-/usr/share/pyshared/zope/interface/tests/test_odd_declarations.py

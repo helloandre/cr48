@@ -1,1 +1,0 @@
-../../../../../share/pyshared/twisted/names/_version.py

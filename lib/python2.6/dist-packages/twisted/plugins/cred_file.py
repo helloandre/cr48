@@ -1,1 +1,0 @@
-../../../../../share/pyshared/twisted/plugins/cred_file.py

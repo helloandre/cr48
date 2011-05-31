@@ -1,1 +1,0 @@
-/usr/share/pyshared/desktopcouch/pair/couchdb_pairing/dbus_io.py

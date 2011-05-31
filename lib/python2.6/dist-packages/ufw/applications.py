@@ -1,1 +1,0 @@
-../../../../share/pyshared/ufw/applications.py

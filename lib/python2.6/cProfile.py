@@ -1,4 +1,4 @@
-#! /usr/bin/python2.6
+#! /usr/bin/env python
 
 """Python interface for the 'lsprof' profiler.
    Compatible with the 'profile' module.

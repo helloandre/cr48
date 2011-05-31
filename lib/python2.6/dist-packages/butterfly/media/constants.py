@@ -1,1 +1,0 @@
-/usr/share/pyshared/butterfly/media/constants.py

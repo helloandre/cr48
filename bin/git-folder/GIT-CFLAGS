@@ -1,1 +1,1 @@
-gcc: -g -O2 -Wall -I.  -DHAVE_PATHS_H -DSHA1_HEADER='<openssl/sha.h>'  -DNO_STRLCPY -DNO_MKSTEMPS: /home/andre/bin:libexec/git-core:share/git-core/templates:/home/andre
+cc: -g -O2 -I. -DNO_CURL -pthread -DHAVE_PATHS_H -DSHA1_HEADER='<openssl/sha.h>'  -DNO_STRLCPY -DNO_MKSTEMPS: /home/pcheah/local/bin:/home/pcheah/local/libexec/git-core:/home/pcheah/local/share/git-core/templates:/home/pcheah/local

@@ -1,1 +1,0 @@
-/usr/share/pyshared/zope/interface/common/tests/test_import_interfaces.py

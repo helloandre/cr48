@@ -46,7 +46,7 @@ test_expect_success \
     'git branch a/b/c && test -f .git/refs/heads/a/b/c'
 
 cat >expect <<EOF
-0000000000000000000000000000000000000000 $HEAD $GIT_COMMITTER_NAME <$GIT_COMMITTER_EMAIL> 1117150200 +0000	branch: Created from master
+$_z40 $HEAD $GIT_COMMITTER_NAME <$GIT_COMMITTER_EMAIL> 1117150200 +0000	branch: Created from master
 EOF
 test_expect_success \
     'git branch -l d/e/f should create a branch and a log' \
@@ -203,7 +203,7 @@ test_expect_success 'test deleting branch deletes branch config' \
      test -z "$(git config branch.my7.remote)" &&
      test -z "$(git config branch.my7.merge)"'
 
-test_expect_success 'test deleting branch without config' \
+test_expect_success C_LOCALE_OUTPUT 'test deleting branch without config' \
     'git branch my7 s &&
      sha1=$(git rev-parse my7 | cut -c 1-7) &&
      test "$(git branch -d my7 2>&1)" = "Deleted branch my7 (was $sha1)."'
@@ -223,9 +223,14 @@ test_expect_success \
     'branch from non-branch HEAD w/--track causes failure' \
     'test_must_fail git branch --track my10 HEAD^'
 
+test_expect_success \
+    'branch from tag w/--track causes failure' \
+    'git tag foobar &&
+     test_must_fail git branch --track my11 foobar'
+
 # Keep this test last, as it changes the current branch
 cat >expect <<EOF
-0000000000000000000000000000000000000000 $HEAD $GIT_COMMITTER_NAME <$GIT_COMMITTER_EMAIL> 1117150200 +0000	branch: Created from master
+$_z40 $HEAD $GIT_COMMITTER_NAME <$GIT_COMMITTER_EMAIL> 1117150200 +0000	branch: Created from master
 EOF
 test_expect_success \
     'git checkout -b g/h/i -l should create a branch and a log' \
@@ -486,6 +491,15 @@ test_expect_success 'autosetuprebase always on an untracked remote branch' '
 	test "z$(git config branch.myr20.remote)" = z &&
 	test "z$(git config branch.myr20.merge)" = z &&
 	test "z$(git config branch.myr20.rebase)" = z
+'
+
+test_expect_success 'autosetuprebase always on detached HEAD' '
+	git config branch.autosetupmerge always &&
+	test_when_finished git checkout master &&
+	git checkout HEAD^0 &&
+	git branch my11 &&
+	test -z "$(git config branch.my11.remote)" &&
+	test -z "$(git config branch.my11.merge)"
 '
 
 test_expect_success 'detect misconfigured autosetuprebase (bad value)' '

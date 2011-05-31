@@ -324,6 +324,38 @@ test_expect_success 'merge c1 with c2 (no-commit in config)' '
 
 test_debug 'git log --graph --decorate --oneline --all'
 
+test_expect_success 'merge c1 with c2 (log in config)' '
+	git config branch.master.mergeoptions "" &&
+	git reset --hard c1 &&
+	git merge --log c2 &&
+	git show -s --pretty=tformat:%s%n%b >expect &&
+
+	git config branch.master.mergeoptions --log &&
+	git reset --hard c1 &&
+	git merge c2 &&
+	git show -s --pretty=tformat:%s%n%b >actual &&
+
+	test_cmp expect actual
+'
+
+test_expect_success 'merge c1 with c2 (log in config gets overridden)' '
+	(
+		git config --remove-section branch.master
+		git config --remove-section merge
+	)
+	git reset --hard c1 &&
+	git merge c2 &&
+	git show -s --pretty=tformat:%s%n%b >expect &&
+
+	git config branch.master.mergeoptions "--no-log" &&
+	git config merge.log true &&
+	git reset --hard c1 &&
+	git merge c2 &&
+	git show -s --pretty=tformat:%s%n%b >actual &&
+
+	test_cmp expect actual
+'
+
 test_expect_success 'merge c1 with c2 (squash in config)' '
 	git reset --hard c1 &&
 	git config branch.master.mergeoptions "--squash" &&
@@ -495,7 +527,7 @@ test_expect_success 'merge fast-forward in a dirty tree' '
 
 test_debug 'git log --graph --decorate --oneline --all'
 
-test_expect_success 'in-index merge' '
+test_expect_success C_LOCALE_OUTPUT 'in-index merge' '
 	git reset --hard c0 &&
 	git merge --no-ff -s resolve c1 >out &&
 	grep "Wonderful." out &&

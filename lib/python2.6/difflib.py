@@ -1,4 +1,4 @@
-#! /usr/bin/python2.6
+#! /usr/bin/env python
 
 """
 Module difflib -- helpers for computing deltas between objects.

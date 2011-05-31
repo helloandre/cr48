@@ -1,1 +1,0 @@
-../../../../../../share/pyshared/twisted/persisted/journal/base.py

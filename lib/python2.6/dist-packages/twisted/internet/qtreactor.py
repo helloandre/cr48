@@ -1,1 +1,0 @@
-../../../../../share/pyshared/twisted/internet/qtreactor.py

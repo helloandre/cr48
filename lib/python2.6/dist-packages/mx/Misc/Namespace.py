@@ -1,1 +1,0 @@
-/usr/share/pyshared/mx/Misc/Namespace.py
